@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circles</title>
+  <style>
+    :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:0 auto;min-height:100vh;padding-bottom:30px}
+    .top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:14px 16px}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:12px}.title{font-size:25px;font-weight:900;letter-spacing:-.3px}.account{font-size:12px;color:var(--muted);text-align:right;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .nav-wrap{position:relative;margin-left:auto}.menu-btn{width:44px;height:44px;border:1px solid var(--border);background:#fff;color:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;line-height:1}.menu-btn:hover{background:var(--soft)}.menu-panel{position:absolute;right:0;top:52px;width:220px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:7px;box-shadow:0 14px 35px rgba(15,23,42,.16);display:none;z-index:40}.menu-panel.open{display:block}.menu-panel button{width:100%;border:0;background:#fff;color:#334155;border-radius:10px;padding:11px 12px;text-align:left;font-weight:800}.menu-panel button:hover{background:var(--soft)}.menu-panel button.active{background:var(--accent);color:#fff}.subnav button{border:1px solid var(--border);background:#fff;color:#334155;border-radius:999px;padding:9px 14px;font-weight:800}.subnav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    main{padding:16px}.view{display:none}.view.active{display:block}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}.card h2,.card h3{margin:0 0 12px}.muted{color:var(--muted)}.small{font-size:12px}.notice{border:1px solid #c9ddc8;background:var(--soft);color:#29452a;border-radius:14px;padding:12px 14px;line-height:1.5;margin-bottom:14px}.notice.warning{border-color:#ead4a5;background:#fff9eb;color:#754c00}.notice.danger{border-color:#edb6b0;background:#fff2f0;color:#8b2118}
+    .subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.full{grid-column:1/-1}.field label{display:block;font-size:13px;font-weight:800;color:#475569;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:#fff;border-radius:11px;padding:10px 12px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(54,82,51,.12)}textarea{min-height:95px;resize:vertical}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid var(--border);background:#fff;color:#334155;border-radius:11px;padding:10px 14px;font-weight:800}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.secondary{background:#334155;color:#fff;border-color:#334155}.btn.danger{background:#fff1f0;color:var(--danger);border-color:#efb7b2}.btn:disabled{opacity:.55;cursor:default}
+    .circle-list{display:grid;gap:10px}.circle-item{width:100%;text-align:left;border:1px solid var(--border);background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 7px rgba(15,23,42,.04)}.circle-item:hover{border-color:#b9c9b7}.circle-info{cursor:pointer}.circle-name{font-size:18px;font-weight:900}.meta{font-size:13px;color:var(--muted);margin-top:4px}.badge{display:inline-block;background:#edf2ed;color:#365233;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900;margin-left:5px}.circle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #edf0f2}
+    .attendance-head{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px}.attendance-list{display:grid;gap:8px;margin-top:14px}.attendance-row{display:flex;gap:7px;align-items:center}.person{flex:1;border:0;border-radius:14px;min-height:58px;padding:11px 15px;background:#e7ebee;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;font-weight:800}.person.present{background:#d7f2dd;color:#18552a}.person.late{background:#4d8b55;color:#fff}.person.absent{background:#f8d4d1;color:#7e211b}.person-name{font-size:17px}.person-status{font-size:12px;white-space:nowrap}.remove{width:42px;height:42px;border-radius:50%;border:1px solid #efc2bd;background:#fff3f1;color:var(--danger);font-weight:900;font-size:20px}.summary{margin-top:12px;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid var(--border);font-weight:800}.guest-label{color:#7a4c00}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px}.kpi small{display:block;color:var(--muted);font-weight:800}.kpi strong{display:block;font-size:25px;margin-top:3px}.trend{display:grid;gap:8px}.trend-row{display:grid;grid-template-columns:190px 1fr 55px;gap:8px;align-items:center}.bar{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden}.fill{height:100%;background:var(--accent2)}
+    .table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:13px}.table th,.table td{padding:9px 7px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}.table th{font-size:12px;color:var(--muted)}
+    .member-row{display:grid;grid-template-columns:1fr 48px;gap:8px;margin-bottom:8px}.request-intro{font-size:15px;line-height:1.6;color:#475569}.request-status{display:none;border-radius:14px;padding:16px 18px;margin-bottom:14px;background:#edf7ee;border:1px solid #b8d8ba;color:#28502b;font-weight:700;line-height:1.6}.request-status.show{display:block}.request-status strong{display:block;font-size:18px;margin-bottom:4px}.required-note{font-size:12px;color:var(--muted);margin-top:6px}.member-row input{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px}.empty{text-align:center;color:var(--muted);padding:32px 15px}.loading{color:var(--accent2);font-weight:800}.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.show{display:flex}.modal-box{width:100%;max-width:400px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    @media(max-width:720px){.today-parts,.quick-grid{grid-template-columns:1fr}.topline{align-items:flex-start}.account{max-width:180px}.grid,.attendance-head{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.title{font-size:22px}.person-name{font-size:16px}.menu-panel{width:210px}.subnav button{flex:1}}
+  
+.dashboard-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.dashboard-kpi{background:#fff;border:1px solid #dfe7df;border-radius:14px;padding:16px}.dashboard-kpi strong{display:block;font-size:30px;line-height:1.1}.dashboard-kpi small{display:block;margin-top:6px;color:#687268}.dashboard-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.dashboard-chart{background:#fff;border:1px solid #dfe7df;border-radius:14px;padding:16px}.dashboard-chart h3{margin:0 0 5px}.dashboard-chart .small{margin-bottom:14px}.dash-bars{display:flex;flex-direction:column;gap:10px}.dash-row{display:grid;grid-template-columns:minmax(110px,1.1fr) 2fr 42px;gap:10px;align-items:center}.dash-label{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dash-track{height:14px;background:#edf1ed;border-radius:99px;overflow:hidden}.dash-fill{height:100%;background:#365233;border-radius:99px}.dash-value{text-align:right;font-weight:800;font-size:13px}@media(max-width:720px){.dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-chart-grid{grid-template-columns:1fr}.dash-row{grid-template-columns:minmax(90px,1fr) 1.6fr 36px}}
+
+.email-member-row{display:grid;grid-template-columns:34px 1.2fr 1fr 34px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #edf0ed}.email-member-row:last-child{border-bottom:0}.email-member-row input[type=checkbox]{width:18px;height:18px}.email-compose{margin-top:16px;border-top:1px solid #e5e9e5;padding-top:16px}.email-compose textarea{min-height:180px}.email-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.email-selection{font-size:13px;color:#667466}@media(max-width:720px){.email-member-row{grid-template-columns:30px 1fr;}.email-member-row .email-field{grid-column:2}.email-member-row .remove-email-member{grid-column:2;justify-self:start}}
+
+.study-resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.study-resource-card{border:1px solid #e4e9e4;border-radius:12px;padding:16px;background:#fff}.study-resource-card h3{margin:0 0 6px}.study-resource-card p{margin:6px 0;color:#667466;line-height:1.5}.study-resource-category{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#667466;margin-bottom:6px}.study-resource-card a{display:inline-block;margin-top:10px}.study-empty{padding:20px;text-align:center;color:#667466}
+
+.chat-button{display:flex;align-items:center;gap:10px;text-decoration:none;border:1px solid #cfd8cf;border-radius:12px;padding:10px 13px;background:#f6f8f5;color:inherit;min-width:180px}.chat-button:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}.chat-icon{font-size:22px;line-height:1}.chat-button strong{display:block;font-size:14px}.chat-button small{display:block;margin-top:2px;font-size:11px;opacity:.72}
+.chat-status-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid #e4e9e4;border-radius:12px;background:#fff;margin-bottom:12px}.chat-status-main h3{margin:0 0 4px}.chat-status-meta{font-size:13px;color:#667466}.chat-request-note{margin-top:6px;color:#667466;font-size:13px}.chat-request-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;padding:20px;z-index:1000}.modal-content{background:#fff;border-radius:16px;max-width:640px;width:100%;padding:22px}.modal-header{display:flex;align-items:center;justify-content:space-between}.icon-btn{border:0;background:transparent;font-size:28px;cursor:pointer}
+    .today-hero{background:linear-gradient(145deg,#365233 0%,#4d7049 100%);color:#fff;border:0;padding:22px;box-shadow:0 8px 24px rgba(54,82,51,.18)}
+    .today-hero .eyebrow{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;opacity:.78;margin-bottom:7px}.today-hero h1{margin:0 0 7px;font-size:30px;line-height:1.15}.today-hero p{margin:0;line-height:1.6;opacity:.92}.today-date{font-size:13px;font-weight:800;margin-top:12px;opacity:.82}
+    .today-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.today-section-title h2{margin:0}.today-study{border:1px solid #dfe8de;background:#fbfdfb;border-radius:14px;padding:18px}.today-study h3{margin:0 0 7px}.today-study-intro{margin:0 0 14px;color:#667466;line-height:1.6}.today-study-block{border-top:1px solid #e3e9e2;padding-top:14px;margin-top:14px}.today-study-block:first-child{border-top:0;padding-top:0;margin-top:0}.today-study-block h4{margin:0 0 7px;font-size:15px}.today-study-block p{margin:0;color:#3f4b42;line-height:1.65}.today-reading{background:#f1f7f0;border:1px solid #d8e5d6;border-radius:12px;padding:13px 14px}.today-reading strong{display:block;color:#365233}.today-questions{margin:0;padding-left:21px;color:#3f4b42;line-height:1.65}.today-questions li{margin-bottom:7px}.today-copyright{font-size:11px;color:#7a857c;line-height:1.45;margin-top:14px}.today-empty{border:1px dashed #b8c8b5;background:#f8fbf8;border-radius:14px;padding:20px;color:#667466;line-height:1.6}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.quick-link{display:block;text-align:left;border:1px solid var(--border);background:#fff;border-radius:14px;padding:15px;color:inherit;box-shadow:0 2px 7px rgba(15,23,42,.04)}.quick-link strong{display:block;font-size:15px}.quick-link span{display:block;color:var(--muted);font-size:12px;margin-top:4px;line-height:1.45}.quick-link:hover{border-color:#b9c9b7}
+    .page-note{
+      display:block !important;
+      width:100%;
+      clear:both;
+      font-size:13px;
+      color:#5f6b63;
+      margin:8px 0 0;
+      line-height:1.4;
+    }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="topline">
+      <div class="title" id="appTitle">Circle Request, Registration, and Attendance</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="account" id="accountLabel">Choose a Circle to begin</div>
+        <div class="nav-wrap">
+          <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+          <div class="menu-panel" id="menuPanel">
+            <button id="navToday" onclick="showView('today')">Today</button>
+            <button id="navCircles" onclick="showView('circles')">My Circle</button>
+            <button id="navStudy" onclick="showView('study')">Study</button>
+            <button id="navAttendance" onclick="showView('attendance')">Attendance</button>
+            <button id="navMore" onclick="showView('more')">More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-note">Note: Please wait for the whole page to load before clicking any of the buttons. Thanks!</div>
+  </header>
+
+  <main>
+
+    <section id="todayView" class="view">
+      <div class="card today-hero">
+        <div class="eyebrow">Your Circle Journey</div>
+        <h1>Today</h1>
+        <p>Take a few moments today to listen to God, reflect on His Word, and prepare to share with your Circle.</p>
+        <div id="todayDate" class="today-date"></div>
+      </div>
+
+      <div class="card">
+        <div class="today-section-title">
+          <h2>Today's Circle Study</h2>
+          <span class="badge">Daily</span>
+        </div>
+        <div id="todayStudyContent" class="today-empty">Loading today's study…</div>
+      </div>
+
+      <div class="card">
+        <h2>Quick Access</h2>
+        <div class="quick-grid">
+          <button class="quick-link" onclick="showView('circles')"><strong>👥 My Circle</strong><span>See your Circle and its members.</span></button>
+          <button class="quick-link" onclick="showView('attendance')"><strong>✓ Attendance</strong><span>Record or review Circle attendance.</span></button>
+          <button class="quick-link" onclick="showView('study')"><strong>📚 Study</strong><span>Browse Bible studies and other resources.</span></button>
+          <button class="quick-link" onclick="showView('chat')"><strong>💬 Circle Chat</strong><span>Open your Circle's conversation.</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="moreView" class="view">
+      <div class="card">
+        <h2>More</h2>
+        <div class="request-intro">Other Circles features are available here so the main navigation can stay simple.</div>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-link" onclick="showView('home')"><strong>➕ Request to Join a Circle</strong><span>Looking for a Circle to join? Send us your information.</span></button>
+        <button class="quick-link" onclick="showView('chat')"><strong>💬 Chat</strong><span>Open Circle conversations and request a chat space.</span></button>
+        <button class="quick-link" onclick="showView('stats')"><strong>📊 Dashboard</strong><span>View attendance and Circle statistics.</span></button>
+        <button class="quick-link" onclick="showView('circles')"><strong>⚙️ Circle Management</strong><span>Registration, members, and communities.</span></button>
+      </div>
+    </section>
+
+    <section id="homeView" class="view">
+      <div class="card">
+        <h2>Find a Circle</h2>
+        <div class="request-intro">
+          Looking for a Circle to join? Tell us a little about yourself and the kind of Circle you are looking for. Your responses will help us connect you with a Circle that fits your life, interests, and preferences.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Request to Join a Circle</h2>
+        <div id="requestStatus" class="request-status"></div>
+        <div class="notice">Please answer the items that apply to you. You do not need to complete every optional field.</div>
+        <div class="grid">
+          <div class="field"><label>Name *</label><input id="rName" placeholder="Your full name"></div>
+          <div class="field"><label>Email *</label><input id="rEmail" type="email" placeholder="Your email address"></div>
+          <div class="field"><label>Phone / Mobile</label><input id="rPhone" type="tel" placeholder="Optional"></div>
+          <div class="field"><label>Age Range</label><select id="rAge"><option value="">Choose if applicable</option><option>Under 18</option><option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option><option>55–64</option><option>65+</option></select></div>
+          <div class="field"><label>Gender</label><select id="rGender"><option value="">Choose if you wish</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select></div>
+          <div class="field"><label>Marital Status</label><select id="rMarital"><option value="">Choose if applicable</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option><option>Prefer not to say</option></select></div>
+          <div class="field"><label>Life Stage</label><select id="rLifeStage"><option value="">Choose if applicable</option><option>Student</option><option>Young Professional</option><option>Young Couple</option><option>Parent / Family</option><option>Adult</option><option>Senior Adult</option><option>Other</option></select></div>
+          <div class="field"><label>Location / Area</label><input id="rLocation" placeholder="e.g. Pacita, San Pedro"></div>
+          <div class="field"><label>Preferred Circle</label><select id="rCircle"></select></div>
+          <div class="field"><label>Preferred Circle Type</label><select id="rCircleType"></select></div>
+          <div class="field"><label>Preferred Manner of Meeting</label><select id="rManner"></select></div>
+          <div class="field"><label>Preferred Meeting Day</label><select id="rDay"><option value="">No preference</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+          <div class="field"><label>Preferred Meeting Time</label><input id="rTime" type="time"></div>
+          <div class="field"><label>Preferred Frequency</label><select id="rFrequency"></select></div>
+          <div class="field"><label>Community Affiliation</label><select id="rCommunity"></select></div>
+          <div class="field full"><label>Interests / Preferences</label><textarea id="rInterests" placeholder="What kinds of people, topics, activities, or experiences would you enjoy in a Circle?"></textarea></div>
+          <div class="field full"><label>Why would you like to join a Circle?</label><textarea id="rWhy" placeholder="Tell us briefly what you are looking for."></textarea></div>
+          <div class="field full"><label>Additional Notes</label><textarea id="rNotes" placeholder="Anything else you would like us to know?"></textarea></div>
+        </div>
+        <div class="required-note">* Required fields</div>
+        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Request to Join a Circle</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
+      </div>
+    </section>
+
+    <section id="attendanceView" class="view">
+      <div id="attendanceNotice"></div>
+      <div class="card">
+        <h2>Attendance</h2>
+        <div class="attendance-head">
+          <div class="field"><label>Circle</label><select id="attendanceCircle" onchange="onAttendanceCircleChange()"></select></div>
+          <div class="field"><label>Date</label><input id="eventDate" type="date" onchange="loadAttendance()"></div>
+          <div class="field"><label>Event</label><select id="eventSelect" onchange="onEventSelect()"></select></div>
+        </div>
+        <div id="newEventWrap" class="grid" style="margin-top:10px">
+          <div class="field"><label>Event Name</label><input id="newEventName" placeholder="e.g. Circle Meeting"></div>
+          <div class="field"><label>Time</label><input id="eventTime" type="time"></div>
+          <div class="field full"><label>Notes</label><textarea id="eventNotes" placeholder="Optional notes about this event"></textarea></div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="markAll('P')">Mark All Present</button>
+          <button class="btn" onclick="clearAll()">Clear</button>
+          <button class="btn" onclick="openPersonModal('Guest')">+ Add Guest</button>
+          <button class="btn" onclick="openPersonModal('Member')">+ Add New Member</button>
+          <button class="btn secondary" onclick="loadAttendance()">Refresh</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="attendanceSummary" class="summary">Choose a Circle and date.</div>
+        <div id="attendanceList" class="attendance-list"></div>
+        <div class="actions"><button id="saveAttendanceBtn" class="btn primary" onclick="saveAttendance()">Save Attendance</button></div>
+      </div>
+    </section>
+
+    <section id="circlesView" class="view">
+      <div class="subnav">
+        <button id="circleListTab" onclick="circleMode('list')">Circles</button>
+        <button id="circleEditTab" onclick="circleMode('edit')">Register</button>
+        <button id="circleMembersTab" onclick="circleMode('members')">Members</button>
+        <button id="circleCommunitiesTab" onclick="circleMode('communities')">Communities</button>
+      </div>
+      <div id="circleListPane"></div>
+      <div id="circleEditPane" style="display:none"></div>
+      <div id="circleMembersPane" style="display:none"></div>
+      <div id="circleCommunitiesPane" style="display:none"></div>
+    </section>
+
+    <section id="studyView" class="view">
+      <div class="subnav">
+        <button id="studyListTab" onclick="studyMode('list')">Library</button>
+        <button id="studyAddTab" onclick="studyMode('add')">Add Resource</button>
+      </div>
+      <div id="studyListPane">
+      <div class="card">
+        <h2>Study Library</h2>
+        <div class="request-intro">
+          Browse resources that Circles can use for study and discussion. Resources are organized by category and can be opened directly from this page.
+        </div>
+      </div>
+      <div id="studyResourceList"></div>
+      <div class="card">
+        <h2>Request a Study Topic</h2>
+        <div class="request-intro">
+          If your Circle would like to study a topic that is not yet listed, send us a request. We will review the request and work on making a suitable resource available.
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label>Your Name *</label>
+            <input id="studyReqName" placeholder="Your name">
+          </div>
+          <div class="field">
+            <label>Email *</label>
+            <input id="studyReqEmail" type="email" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label>Circle</label>
+            <select id="studyReqCircle"></select>
+          </div>
+          <div class="field">
+            <label>Preferred Resource Format</label>
+            <select id="studyReqFormat">
+              <option>Any format</option>
+              <option>Mini Course</option>
+              <option>Bible Study</option>
+              <option>Devotional</option>
+              <option>Video / Teaching</option>
+              <option>Discussion Guide</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Topic You Want to Study *</label>
+            <input id="studyReqTopic" placeholder="e.g. How to deal with conflict in a healthy way">
+          </div>
+          <div class="field full">
+            <label>What would you like to study?</label>
+            <textarea id="studyReqDescription" placeholder="Tell us what you hope the resource will cover."></textarea>
+          </div>
+          <div class="field full">
+            <label>Why is this topic needed?</label>
+            <textarea id="studyReqReason" placeholder="Tell us briefly why this would be helpful for your Circle."></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="submitStudyRequestBtn" onclick="submitStudyRequest()">Request Study Resource</button>
+        </div>
+      </div>
+      </div>
+      <div id="studyAddPane" style="display:none"></div>
+    </section>
+
+    <section id="chatView" class="view">
+      <div class="subnav">
+        <button id="chatListTab" onclick="chatMode('list')">Circle Chats</button>
+        <button id="chatAdminTab" onclick="chatMode('admin')">Chat Administration</button>
+      </div>
+      <div id="chatListPane">
+      <div class="card"><h2>Circle Chat</h2><div class="request-intro">Find your Circle's official Chat Space here. If your Circle does not have one yet, you can request one and an RLCC Chat Administrator will set it up.</div></div>
+      <div id="chatCircleList"></div>
+      </div>
+      <div id="chatAdminPane" style="display:none"></div>
+      <div class="chat-request-modal" id="chatRequestModal" style="display:none"><div class="modal-content">
+        <div class="modal-header"><h2>Request Circle Chat</h2><button class="icon-btn" onclick="closeChatRequest()">×</button></div>
+        <div class="request-intro">Request an official Google Chat Space for <strong id="chatRequestCircleName"></strong>.</div>
+        <div class="grid"><div class="field"><label>Your Name *</label><input id="chatReqName"></div><div class="field"><label>Email *</label><input id="chatReqEmail" type="email"></div><div class="field full"><label>Message</label><textarea id="chatReqMessage"></textarea></div></div>
+        <div class="actions"><button class="btn" onclick="closeChatRequest()">Cancel</button><button class="btn primary" id="submitChatRequestBtn" onclick="submitChatRequest()">Request Chat</button></div>
+      </div></div>
+    </section>
+
+    <section id="statsView" class="view">
+      <!-- Dashboard sequence: Charts → Attendance Trend → Attendance Rates → Circle Statistics → Members -->
+      <div id="dashboardChartsPane"></div>
+
+      <div class="card"><h3>Attendance Trend</h3><div id="trendList" class="trend"></div></div>
+
+      <div class="card"><h3>Attendance Rates</h3><div class="kpis" id="statsKpis"></div></div>
+
+      <div class="card">
+        <h2>Circle Statistics</h2>
+        <div class="grid">
+          <div class="field"><label>Circle</label><select id="statsCircle"></select></div>
+          <div class="field"><label>From</label><input id="statsFrom" type="date"></div>
+          <div class="field"><label>To</label><input id="statsTo" type="date"></div>
+        </div>
+        <div class="actions"><button class="btn primary" onclick="loadStats()">Update Stats</button><button class="btn" onclick="showDashboardCharts()">Refresh Charts</button><button class="btn" onclick="emailStats()">Email Report</button></div>
+      </div>
+
+      <div class="card"><h3>Members</h3><div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Circle</th><th>Rate</th><th>Present</th><th>Late</th><th>Absent</th></tr></thead><tbody id="statsTable"></tbody></table></div></div>
+    </section>
+  </main>
+</div>
+
+<div id="personModal" class="modal">
+  <div class="modal-box">
+    <h3 id="personModalTitle">Add Person</h3>
+    <div class="field"><label>Name</label><input id="personName" placeholder="Full name"></div>
+    <div class="actions"><button class="btn" onclick="closePersonModal()">Cancel</button><button class="btn primary" onclick="addPerson()">Add</button></div>
+  </div>
+</div>
+
+<script>
+  var state = {settings:{},circles:[],circleTypes:[],communityAffiliations:[],communities:[],frequencies:[],meetingModes:[],selectedCircleId:'',circleBeingEdited:null,communityBeingEdited:null,membersCircleId:'',members:[],attendance:[],circleCommunityFilter:'',memberCounts:{}};
+  function $(id){return document.getElementById(id)}
+  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function formatTrendDate(value){
+    if(value==null || value==='') return '';
+    var s=String(value).trim();
+    if(!s) return '';
+    var d=new Date(s);
+    if(isNaN(d.getTime())) return s;
+    return d.toLocaleString('en-PH',{
+      weekday:'short',
+      month:'short',
+      day:'numeric',
+      year:'numeric',
+      hour:'numeric',
+      minute:'2-digit'
+    });
+  }
+
+  function formatMeetingTime(value){
+    if(value==null || value==='') return '';
+    var s=String(value).trim();
+    if(!s) return '';
+    var m=s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if(m){
+      var hh=Number(m[1]);
+      if(hh>=0 && hh<=23) return String(hh).padStart(2,'0')+':'+m[2];
+    }
+    var d=new Date(s);
+    if(!isNaN(d.getTime()) && /1899|1900/.test(s)){
+      return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    }
+    return s;
+  }
+
+  // ===== Standalone hosting: calls a JSON API instead of the Apps Script page runtime =====
+  var API_URL='PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE'; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+  function server(fn){
+    var args=[].slice.call(arguments,1);
+    return fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // "simple" request: avoids CORS preflight
+      body:JSON.stringify({fn:fn,args:args}),
+      redirect:'follow'
+    }).then(function(r){return r.json()}).then(function(res){
+      if(!res||res.ok!==true) throw new Error((res&&res.error?res.error:'Unknown server error'));
+      return res.data;
+    }).catch(function(e){
+      throw new Error((e&&e.message?e.message:String(e))+' [Server function: '+fn+']');
+    });
+  }
+  function toast(msg){alert(msg)}
+document.addEventListener('click',function(e){var wrap=document.querySelector('.nav-wrap');if(wrap && !wrap.contains(e.target))closeMenu();});
+  function busy(on){document.body.style.cursor=on?'wait':'default';$('saveAttendanceBtn').disabled=on}
+  function fillSelect(id,items,placeholder){var s=$(id);s.innerHTML='';if(placeholder){var o=document.createElement('option');o.value='';o.textContent=placeholder;s.appendChild(o)}items.forEach(function(x){var o=document.createElement('option');o.value=x.value;o.textContent=x.label;s.appendChild(o)})}
+  function toggleMenu(){var p=$('menuPanel');var b=$('menuBtn');var open=!p.classList.contains('open');p.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open))} function closeMenu(){var p=$('menuPanel');var b=$('menuBtn');if(p){p.classList.remove('open')}if(b){b.setAttribute('aria-expanded','false')}} function showView(view){['today','home','attendance','circles','stats','study','chat','more'].forEach(function(v){var el=$(v+'View');if(el)el.classList.toggle('active',v===view);var nav=$('nav'+v.charAt(0).toUpperCase()+v.slice(1));if(nav)nav.classList.toggle('active',v===view)});closeMenu();if(view==='today')renderToday();if(view==='circles')circleMode('list');if(view==='attendance')loadAttendance(true);if(view==='stats'){loadStats();showDashboardCharts()}if(view==='study')studyMode('list');if(view==='chat')chatMode('list')}
+  function renderToday(){
+    var d=state.todayIso||new Date().toISOString().slice(0,10);
+    var parts=d.split('-');
+    var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
+    $('todayDate').textContent=date.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    renderTodayStudy(d);
+  }
+
+  function renderTodayStudy(iso){
+    var p=$('todayStudyContent');
+    var studies={
+      '2026-09-21':{
+        title:'Faithfulness in the Ordinary',
+        reading:'Romans 16:1–16',
+        focus:'Romans 16:1–2',
+        intro:'Paul closes his letter to the Romans by naming and honoring ordinary people who served Christ faithfully. Their names remind us that God values the quiet, relational work of ministry.',
+        reflection:'Romans 16 is easy to skim because it is filled with names. But Paul slows down long enough to notice people. Phoebe is commended as a servant of the church. Priscilla and Aquila are remembered as fellow workers. Others are greeted by name because their lives and labor mattered to the gospel. The Christian life is not only about what happens on a platform. Much of God’s work happens through people who welcome others, encourage them, open their homes, carry burdens, serve quietly, and remain faithful over time. A Circle is one of those places where this kind of ministry becomes visible. Today, ask God to help you notice the people around you—and to become the kind of person whose ordinary faithfulness strengthens others.',
+        questions:[
+          'Who has quietly helped you grow in your faith, and what can you thank God for in that person?',
+          'What ordinary act of service or encouragement might God be inviting you to offer someone today?',
+          'How can your Circle become a place where people are noticed, valued, and strengthened in their walk with Jesus?'
+        ],
+        prayer:'Lord Jesus, thank You for the people who faithfully serve You in ways that are often unseen. Teach me to notice others, encourage them, and faithfully serve where You have placed me. Make my ordinary actions a blessing to the people around me. Amen.',
+        practice:'Notice one person today who may need encouragement. Send a message, make a call, or speak a specific word of appreciation—and do it simply because you want to strengthen that person in Christ.'
+      }
+    };
+    var s=studies[iso];
+    if(!s){p.innerHTML='<strong>Today’s study is being prepared.</strong><br><br>The daily study will appear here as it becomes available.';return;}
+    p.className='today-study';
+    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.reading)+'</strong><span>Today’s Focus: '+esc(s.focus)+'</span></div></div>'+
+      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.reflection)+'</p></div>'+
+      '<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>'+
+      '<div class="today-study-block"><h4>🙏 Prayer</h4><p>'+esc(s.prayer)+'</p></div>'+
+      '<div class="today-study-block"><h4>👣 Today’s Practice</h4><p>'+esc(s.practice)+'</p></div>'+
+      '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
+  }
+  function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
+  async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
+  function renderCircleList(){
+    var p=$('circleListPane');
+    if(!state.circles.length){p.innerHTML='<div class="card empty"><strong>No Circles yet.</strong><br><br>Use the <strong>Register</strong> tab above to register a Circle.</div>';return;}
+    var grouped={};
+    state.circles.slice().sort(function(a,b){var ac=String(a.communityAffiliation||'').toLowerCase(),bc=String(b.communityAffiliation||'').toLowerCase();return ac.localeCompare(bc)||String(a.name||'').localeCompare(String(b.name||''));}).forEach(function(c){var key=c.communityAffiliation||'Not specified';if(!grouped[key])grouped[key]=[];grouped[key].push(c);});
+    p.innerHTML=Object.keys(grouped).sort().map(function(community){return '<div class="card"><h3>'+esc(community)+'</h3><div class="circle-list">'+grouped[community].map(function(c){return `<div class="circle-item"><div class="circle-info" onclick="editCircle('${esc(c.id)}')"><div class="circle-name">${esc(c.name)} <span class="badge">${esc(c.type)}</span></div><div class="meta">${esc(c.communityAffiliation||'No community affiliation')}</div><div class="meta">Leader: ${esc(c.leaderName||'Not specified')} · ${esc(c.frequency||'')} · ${esc(c.mannerOfMeeting||'')}</div><div class="meta"><strong>${((state.memberCounts||{})[c.id]||0)}</strong> member${(((state.memberCounts||{})[c.id]||0)===1?'':'s')}</div><div class="meta">${esc(c.meetingPlace||'')}${formatMeetingTime(c.meetingTime)?' · '+(function(){var t=formatMeetingTime(c.meetingTime).split(':');var h=Number(t[0]),m=t[1]||'00';return ((h%12)||12)+':'+m+' '+(h<12?'AM':'PM')})():''}</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCircle('${esc(c.id)}')">Edit Circle</button><button class="btn" onclick="state.selectedCircleId='${esc(c.id)}';state.membersCircleId='${esc(c.id)}';circleMode('members')">Members</button>${c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open your Circle conversation</small></span></a>':''}</div></div>`;}).join('')+'</div></div>';}).join('');
+  }
+  function renderChatAdmin(){
+    var p=$('chatAdminPane');
+    var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
+    p.innerHTML='<div class="card"><h2>Create Circle Chat</h2><div class="notice"><strong>RLCC Chat Administrator:</strong> Select a Circle and the app will create a named Google Chat Space, using the Circle roster emails as initial members. The Space is created as a collaboration space.</div><div class="grid"><div class="field"><label>Circle *</label><select id="chatCreateCircle"></select></div><div class="field"><label>Administrator PIN</label><input id="chatCreatePin" type="password" placeholder="If configured in Settings"></div></div><div class="actions"><button class="btn primary" onclick="createCircleChat()">Create Circle Chat</button></div></div><div class="card"><h3>Existing Circle Chats</h3><div id="chatAdminStatus"></div></div>';
+    fillSelect('chatCreateCircle',circles.map(function(c){return {value:c.id,label:c.name+' — '+(c.communityAffiliation||'No community')}}),'Choose a Circle');
+    renderChatAdminStatus();
+  }
+  function renderChatAdminStatus(){
+    var p=$('chatAdminStatus'); var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
+    if(!circles.length){p.innerHTML='<div class="empty">No Circles are registered.</div>';return}
+    p.innerHTML=circles.map(function(c){return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">'+esc(c.communityAffiliation||'No community affiliation')+' · '+((state.memberCounts||{})[c.id]||0)+' members</div></div><div class="circle-actions">'+(c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open chat</small></span></a><span class="badge">Chat Ready</span>':'<span class="badge">Not Yet Set Up</span>')+'</div></div>'}).join('');
+  }
+  async function createCircleChat(){
+    var id=$('chatCreateCircle').value,pin=$('chatCreatePin').value.trim();
+    if(!id){toast('Please choose a Circle.');return}
+    busy(true);
+    try{var r=await server('apiCreateCircleChat',id,pin);toast(r.message);await bootstrap();chatMode('admin')}catch(e){toast(e.message)}finally{busy(false)}
+  }
+
+  function renderCommunities(){
+    var p=$('circleCommunitiesPane');
+    var active=state.communities.filter(function(c){return c.active;});
+    var inactive=state.communities.filter(function(c){return !c.active;});
+    p.innerHTML='<div class="card"><h2>Communities</h2><div class="notice">Register Communities here. Active Communities will automatically appear in the Community Affiliation dropdown when registering or editing a Circle.</div><div class="grid"><div class="field"><label>Community Name *</label><input id="communityName" placeholder="e.g. New Community"></div></div><div class="actions"><button class="btn primary" onclick="saveCommunity()">Add Community</button></div></div><div class="card"><h3>Active Communities</h3><div id="activeCommunityList"></div></div>' +
+      (inactive.length?'<div class="card"><h3>Inactive Communities</h3><div id="inactiveCommunityList"></div></div>':'');
+    renderCommunityRows('activeCommunityList',active,true);
+    if(inactive.length)renderCommunityRows('inactiveCommunityList',inactive,false);
+  }
+  function renderCommunityRows(id,list,canDeactivate){
+    var p=$(id);
+    if(!list.length){p.innerHTML='<div class="empty">No Communities registered.</div>';return}
+    p.innerHTML=list.map(function(c){
+      return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">Community ID: '+esc(c.id)+'</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCommunity(\''+esc(c.id)+'\')">Edit Community</button>'+(canDeactivate?'<button class="btn danger" onclick="deactivateCommunity(\''+esc(c.id)+'\')">Deactivate</button>':'')+'</div></div>';
+    }).join('');
+  }
+  function newCommunity(){
+    state.communityBeingEdited=null;
+    $('communityName').value='';
+    var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
+    if(b)b.textContent='Add Community';
+  }
+  function editCommunity(id){
+    var c=state.communities.filter(function(x){return x.id===id;})[0];
+    if(!c)return;
+    state.communityBeingEdited=c;
+    $('communityName').value=c.name;
+    var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
+    if(b)b.textContent='Save Community';
+    $('communityName').focus();
+  }
+  async function saveCommunity(){
+    var name=$('communityName').value.trim();
+    if(!name){toast('Please enter the Community name.');$('communityName').focus();return}
+    busy(true);
+    try{
+      var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,active:true});
+      toast(r.message);
+      await bootstrap();
+      state.communityBeingEdited=null;
+      circleMode('communities');
+      $('communityName').focus();
+    }catch(e){toast(e.message)}
+    finally{busy(false)}
+  }
+  async function deactivateCommunity(id){
+    if(!confirm('Deactivate this Community? It will no longer appear in the Community Affiliation dropdown.'))return;
+    busy(true);
+    try{
+      var r=await server('apiDeactivateCommunity',id);
+      toast(r.message);
+      await bootstrap();
+      circleMode('communities');
+    }catch(e){toast(e.message)}
+    finally{busy(false)}
+  }
+
+function renderCircleEditor(){var c=state.circleBeingEdited||{};$('circleEditPane').innerHTML='<div class="card"><h2>'+(c.id?'Edit Circle':'Register Circle')+'</h2><div class="notice">Register the Circle once. You can edit its information and members anytime.</div><div class="grid"><div class="field"><label>Circle Name *</label><input id="cName" value="'+esc(c.name||'')+'" placeholder="e.g. Life Group - Pacita"></div><div class="field"><label>Circle Type *</label><select id="cType">'+state.circleTypes.map(function(x){return '<option '+(x===(c.type||state.circleTypes[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Community Affiliation *</label><select id="cCommunity">'+(c.communityAffiliation&&!state.communityAffiliations.some(function(x){return x===c.communityAffiliation})?'<option selected>'+esc(c.communityAffiliation)+'</option>':'')+state.communityAffiliations.map(function(x){return '<option '+(x===(c.communityAffiliation||'')?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Circle Leader</label><input id="cLeader" value="'+esc(c.leaderName||'')+'" placeholder="Leader name"></div><div class="field"><label>Meeting Time</label><input id="cMeetingTime" type="time" value="'+esc(formatMeetingTime(c.meetingTime))+'"></div><div class="field"><label>Meeting Place</label><input id="cMeetingPlace" value="'+esc(c.meetingPlace||'')+'" placeholder="Where do you meet?"></div><div class="field"><label>Frequency</label><select id="cFrequency">'+state.frequencies.map(function(x){return '<option '+(x===(c.frequency||state.frequencies[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Manner of Meeting</label><select id="cMode">'+state.meetingModes.map(function(x){return '<option '+(x===(c.mannerOfMeeting||state.meetingModes[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field full"><label>Details</label><textarea id="cDetails" placeholder="Anything else we should know about this Circle">'+esc(c.details||'')+'</textarea></div></div><div class="actions"><button class="btn" onclick="circleMode(\'list\')">Cancel</button><button class="btn primary" onclick="saveCircle()">Save Circle</button>'+(c.id?'<button class="btn danger" onclick="deactivateCircle()">Deactivate Circle</button>':'')+'</div></div>'}
+  function newCircle(){state.circleBeingEdited=null;renderCircleEditor()}
+  async function editCircle(id){busy(true);try{state.circleBeingEdited=await server('apiGetCircle',id);state.selectedCircleId=id;circleMode('edit')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function saveCircle(){var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap();state.selectedCircleId=r.circleId;circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function deactivateCircle(){if(!state.circleBeingEdited)return;if(!confirm('Deactivate this Circle? It will no longer appear in the normal Circle list.'))return;busy(true);try{var r=await server('apiDeactivateCircle',state.circleBeingEdited.id);toast(r.message);await bootstrap();circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function loadMembersEditor(id){
+    var circles=state.circles||[];
+    if(!circles.length){$('circleMembersPane').innerHTML='<div class="card empty">Register a Circle first.</div>';return}
+    id=id||state.membersCircleId||state.selectedCircleId||circles[0].id;
+    state.membersCircleId=id;
+    state.selectedCircleId=id;
+    busy(true);
+    try{
+      var roster=await server('apiGetCircleMembers',id);var c=roster.circle;
+      state.members=roster.members||[];
+      $('circleMembersPane').innerHTML='<div class="card"><h2>Circle Members</h2><div class="grid"><div class="field"><label>Circle</label><select id="membersCircleSelect" onchange="loadMembersEditor(this.value)"></select></div></div><div class="notice">These are the regular members of the selected Circle. Guests can be added separately during attendance and do not need to be registered here.</div><div class="card" style="margin:14px 0 0;padding:14px;background:#f8faf8"><strong>'+esc(c.name)+'</strong><div class="small">'+esc(c.communityAffiliation||'No community affiliation')+' · '+state.members.length+' member'+(state.members.length===1?'':'s')+'</div></div><div id="memberEditor"></div><div class="actions"><button class="btn" onclick="addMemberRow()">+ Add Member / Join</button><button class="btn primary" onclick="saveMembers()">Save Members</button><button class="btn" onclick="toggleEmailComposer()">Email Members</button></div><div id="emailComposer" class="email-compose" style="display:none"></div></div>';
+      fillSelect('membersCircleSelect',circles.map(function(x){return {value:x.id,label:x.name}}),'Choose a Circle');
+      $('membersCircleSelect').value=id;
+      renderMemberEditor();
+    }catch(e){toast(e.message)}
+    finally{busy(false)}
+  }
+  function renderMemberEditor(){var p=$('memberEditor');if(!state.members.length){p.innerHTML='<div class="empty">No members registered yet.</div>';return}p.innerHTML='<div class="small" style="margin-bottom:8px">Add an email address if you want to contact this member through the app.</div>'+state.members.map(function(m,i){return '<div class="email-member-row"><input type="checkbox" class="member-email-check" data-member-id="'+esc(m.id||'')+'" '+(m.email?'checked':'disabled')+' aria-label="Select '+esc(m.name)+'"><input value="'+esc(m.name)+'" oninput="state.members['+i+'].name=this.value" placeholder="Member name"><input class="email-field" type="email" value="'+esc(m.email||'')+'" oninput="state.members['+i+'].email=this.value" placeholder="Email address"><button class="remove remove-email-member" onclick="state.members.splice('+i+',1);renderMemberEditor()">×</button></div>'}).join('')}
+  function addMemberRow(){state.members.push({name:'',email:'',active:true});renderMemberEditor();setTimeout(function(){var xs=document.querySelectorAll('#memberEditor input');if(xs.length)xs[xs.length-1].focus()},30)}
+  function toggleEmailComposer(){
+    var p=$('emailComposer');
+    if(p.style.display==='none'){renderEmailComposer();p.style.display='block'}
+    else p.style.display='none';
+  }
+  function renderEmailComposer(){
+    var p=$('emailComposer');
+    var emailMembers=state.members.filter(function(m){return m.email});
+    if(!emailMembers.length){
+      p.innerHTML='<div class="notice">No members have email addresses yet. Add email addresses to the roster above, then save the members.</div>';
+      return;
+    }
+    p.innerHTML='<h3>Email Circle Members</h3><div class="email-actions"><button class="btn" onclick="selectAllEmailMembers(true)">Select All</button><button class="btn" onclick="selectAllEmailMembers(false)">Clear All</button><span id="emailSelectionCount" class="email-selection"></span></div><div id="emailRecipientList" style="margin-top:10px">'+emailMembers.map(function(m){return '<label class="email-member-row"><input type="checkbox" class="email-recipient-check" data-member-id="'+esc(m.id)+'" checked onchange="updateEmailSelectionCount()"><span>'+esc(m.name)+'</span><span class="small">'+esc(m.email)+'</span><span></span></label>'}).join('')+'</div><div class="grid" style="margin-top:14px"><div class="field full"><label>Subject *</label><input id="emailSubject" placeholder="e.g. Circle meeting this week"></div><div class="field full"><label>Message *</label><textarea id="emailBody" placeholder="Write your message to the Circle..."></textarea></div></div><label class="check" style="display:flex;align-items:center;gap:8px;margin:12px 0"><input id="emailCopySelf" type="checkbox"> Send me a copy</label><div class="actions"><button class="btn" onclick="toggleEmailComposer()">Cancel</button><button class="btn primary" onclick="sendCircleEmail()">Send Email</button></div>';
+    updateEmailSelectionCount();
+  }
+  function selectAllEmailMembers(selected){
+    document.querySelectorAll('.email-recipient-check').forEach(function(x){x.checked=selected});
+    updateEmailSelectionCount();
+  }
+  function updateEmailSelectionCount(){
+    var el=$('emailSelectionCount');
+    if(!el)return;
+    var n=document.querySelectorAll('.email-recipient-check:checked').length;
+    el.textContent=n+' member'+(n===1?'':'s')+' selected';
+  }
+  async function sendCircleEmail(){
+    var ids=Array.prototype.slice.call(document.querySelectorAll('.email-recipient-check:checked')).map(function(x){return x.dataset.memberId});
+    if(!ids.length){toast('Please select at least one member.');return}
+    var subject=$('emailSubject').value.trim(),body=$('emailBody').value.trim();
+    if(!subject){toast('Please enter a subject.');$('emailSubject').focus();return}
+    if(!body){toast('Please enter a message.');$('emailBody').focus();return}
+    busy(true);
+    try{
+      var r=await server('apiEmailCircleMembers',state.membersCircleId,ids,subject,body,$('emailCopySelf').checked);
+      toast(r.message);
+      if(r.skipped&&r.skipped.length)alert('These selected members were skipped because no email address is registered:\\n\\n'+r.skipped.join('\\n'));
+      $('emailBody').value='';
+      $('emailSubject').value='';
+      toggleEmailComposer();
+    }catch(e){toast(e.message)}
+    finally{busy(false)}
+  }
+
+async function saveMembers(){busy(true);try{var r=await server('apiSaveMembers',state.membersCircleId,state.members);state.members=r.members||[];toast(r.message);renderMemberEditor();if($('emailComposer')&&$('emailComposer').style.display!=='none')renderEmailComposer()}catch(e){toast(e.message)}finally{busy(false)}}
+  function openPersonModal(type){if(!state.selectedCircleId){toast('Choose a Circle first.');return}$('personModalTitle').textContent=type==='Guest'?'Add Guest':'Add New Member';$('personName').value='';$('personModal').dataset.type=type;$('personModal').classList.add('show');setTimeout(function(){$('personName').focus()},50)}
+  function closePersonModal(){$('personModal').classList.remove('show')}
+  async function addPerson(){var name=$('personName').value.trim(),type=$('personModal').dataset.type||'Guest';if(!name){toast('Enter a name.');return}if(type==='Guest'){state.attendance.push({id:'G-'+Date.now(),name:name,type:'Guest',active:true,status:null});renderAttendance();closePersonModal();return}busy(true);try{var r=await server('apiAddMember',state.selectedCircleId,name);var added=(r.members||[]).filter(function(m){return m.name.toLowerCase()===name.toLowerCase()})[0];state.attendance.push({id:added?added.id:'M-'+Date.now(),name:name,type:'Member',active:true,status:null});toast('Member added.');renderAttendance();closePersonModal()}catch(e){toast(e.message)}finally{busy(false)}}
+  async function onAttendanceCircleChange(){state.selectedCircleId=$('attendanceCircle').value;if(!state.selectedCircleId){state.attendance=[];renderAttendance();return}await loadEventOptions();await loadAttendance(false)}
+  async function loadEventOptions(){if(!state.selectedCircleId)return;try{var options=await server('apiGetEventOptions',state.selectedCircleId);var items=[{value:'__NEW__',label:'＋ New Event'}].concat(options.map(function(x){return {value:x,label:x}}));fillSelect('eventSelect',items);$('eventSelect').value='__NEW__';$('newEventWrap').style.display='grid'}catch(e){toast(e.message)}}
+  async function onEventSelect(){var isNew=$('eventSelect').value==='__NEW__';$('newEventWrap').style.display=isNew?'grid':'none';await loadAttendance(false)}
+  async function loadAttendance(refreshOptions){if(!state.selectedCircleId)return;if(!$('eventDate').value)$('eventDate').value=state.todayIso;busy(true);try{if(refreshOptions!==false)await loadEventOptions();var selected=$('eventSelect').value==='__NEW__'?'':$('eventSelect').value;var d=await server('apiGetAttendance',state.selectedCircleId,$('eventDate').value,selected);state.attendance=d.members||[];if(d.event){$('eventSelect').value=d.event.eventName;$('newEventWrap').style.display='none';$('newEventName').value=d.event.eventName;$('eventTime').value=d.event.eventTime||'';$('eventNotes').value=d.event.notes||''}else{$('newEventWrap').style.display='grid';$('newEventName').value='';$('eventTime').value='';$('eventNotes').value=''}renderAttendance()}catch(e){toast(e.message)}finally{busy(false)}}
+  function renderAttendance(){var list=state.attendance||[];var p=list.filter(function(x){return x.status==='P'}).length,l=list.filter(function(x){return x.status==='L'}).length,a=list.filter(function(x){return x.status===0}).length,u=list.filter(function(x){return x.status==null}).length;$('attendanceSummary').textContent='Present: '+p+' · Late: '+l+' · Absent: '+a+' · Unmarked: '+u;$('attendanceList').innerHTML=list.length?list.map(function(m,i){return '<div class="attendance-row"><button class="person '+(m.status==='P'?'present':m.status==='L'?'late':m.status===0?'absent':'')+'" onclick="cycleStatus('+i+')"><span class="person-name">'+esc(m.name)+(m.type==='Guest'?'<span class="badge guest-label">Guest</span>':'')+'</span><span class="person-status">'+(m.status==='P'?'Present':m.status==='L'?'Late':m.status===0?'Absent':'Unmarked')+'</span></button><button class="remove" onclick="removeAttendancePerson('+i+')">×</button></div>'}).join(''):'<div class="empty">No members yet. Add members or guests.</div>'}
+  function cycleStatus(i){var m=state.attendance[i];m.status=m.status==null?'P':m.status==='P'?'L':m.status==='L'?0:null;renderAttendance()}
+  function markAll(status){state.attendance.forEach(function(m){m.status=status});renderAttendance()}
+  function clearAll(){state.attendance.forEach(function(m){m.status=null});renderAttendance()}
+  function removeAttendancePerson(i){state.attendance.splice(i,1);renderAttendance()}
+  async function saveAttendance(){var eventName=$('eventSelect').value==='__NEW__'?$('newEventName').value.trim():$('eventSelect').value;if(!state.selectedCircleId){toast('Choose a Circle first.');return}if(!eventName){toast('Please enter the event name.');return}var unmarked=state.attendance.filter(function(m){return m.status==null});if(unmarked.length&&!confirm(unmarked.length+' person(s) are unmarked. Save anyway?'))return;busy(true);try{var r=await server('apiSaveAttendance',{circleId:state.selectedCircleId,dateIso:$('eventDate').value,eventName:eventName,eventTime:$('eventTime').value,notes:$('eventNotes').value,members:state.attendance});toast(r.message);await loadAttendance()}catch(e){toast(e.message)}finally{busy(false)}}
+  async function showDashboardCharts(){
+  var p=$('dashboardChartsPane');
+  p.style.display='block';
+  p.innerHTML='<div class="card"><div class="loading">Loading charts…</div></div>';
+  try{
+    var d=await server('apiGetDashboard');
+    renderDashboardCharts(d);
+    p.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){p.innerHTML='<div class="card"><div class="empty">'+esc(e.message)+'</div></div>'}
+}
+function renderDashboardCharts(d){
+  var p=$('dashboardChartsPane');
+  var maxC=Math.max.apply(null,(d.byCommunity||[]).map(function(x){return x.circles}).concat([1]));
+  var maxM=Math.max.apply(null,(d.byCommunity||[]).map(function(x){return x.members}).concat([1]));
+  var maxT=Math.max.apply(null,(d.byType||[]).map(function(x){return x.count}).concat([1]));
+  function circleBars(list){
+    if(!list.length)return '<div class="empty">No Community data yet.</div>';
+    return '<div class="dash-bars">'+list.map(function(x){return '<div class="dash-row"><div class="dash-label" title="'+esc(x.name)+'">'+esc(x.name)+'</div><div class="dash-track"><div class="dash-fill" style="width:'+Math.max(x.circles?2:0,Math.round(x.circles/maxC*100))+'%"></div></div><div class="dash-value">'+x.circles+'</div></div>'}).join('')+'</div>';
+  }
+  function memberBars(list){
+    if(!list.length)return '<div class="empty">No Community data yet.</div>';
+    return '<div class="dash-bars">'+list.map(function(x){return '<div class="dash-row"><div class="dash-label" title="'+esc(x.name)+'">'+esc(x.name)+'</div><div class="dash-track"><div class="dash-fill" style="width:'+Math.max(x.members?2:0,Math.round(x.members/maxM*100))+'%"></div></div><div class="dash-value">'+x.members+'</div></div>'}).join('')+'</div>';
+  }
+  function typeBars(list){
+    if(!list.length)return '<div class="empty">No Circle data yet.</div>';
+    return '<div class="dash-bars">'+list.map(function(x){return '<div class="dash-row"><div class="dash-label" title="'+esc(x.name)+'">'+esc(x.name)+'</div><div class="dash-track"><div class="dash-fill" style="width:'+Math.max(2,Math.round(x.count/maxT*100))+'%"></div></div><div class="dash-value">'+x.count+'</div></div>'}).join('')+'</div>';
+  }
+  p.innerHTML='<div class="card"><div class="actions" style="margin-top:0"><button class="btn" onclick="$('+"'dashboardChartsPane'"+').style.display='+"'none'"+'">Close Charts</button></div><div class="dashboard-kpis">'+
+    '<div class="dashboard-kpi"><strong>'+d.totalCircles+'</strong><small>Total Circles</small></div>'+
+    '<div class="dashboard-kpi"><strong>'+d.totalMembers+'</strong><small>Members in Circles</small></div>'+
+    '<div class="dashboard-kpi"><strong>'+d.totalCommunities+'</strong><small>Active Communities</small></div>'+
+    '<div class="dashboard-kpi"><strong>'+d.averageMembersPerCircle+'</strong><small>Average Members per Circle</small></div>'+
+    '</div><div class="dashboard-chart-grid">'+
+    '<div class="dashboard-chart"><h3>Circles by Community</h3><div class="small">Number of Circles affiliated with each Community.</div>'+circleBars(d.byCommunity)+'</div>'+
+    '<div class="dashboard-chart"><h3>Members by Community</h3><div class="small">Active members across Circles in each Community.</div>'+memberBars(d.byCommunity)+'</div>'+
+    '<div class="dashboard-chart"><h3>Circles by Type</h3><div class="small">Distribution of Circle types.</div>'+typeBars(d.byType)+'</div>'+
+    '</div></div>';
+}
+async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('statsCircle').value,$('statsFrom').value,$('statsTo').value),k=d.kpis;$('statsKpis').innerHTML=[['Attendance Rate',k.rate+'%'],['Events',k.events],['Members',k.members],['Present',k.present],['Late',k.late],['Absent',k.absent],['Marked',k.marked],['Circles',k.circles]].map(function(x){return '<div class="kpi"><small>'+x[0]+'</small><strong>'+x[1]+'</strong></div>'}).join('');$('trendList').innerHTML=d.trend.length?d.trend.map(function(t){return '<div class="trend-row"><div class="small">'+esc(formatTrendDate(t.dateIso))+'</div><div class="bar"><div class="fill" style="width:'+Math.min(100,t.rate)+'%"></div></div><div class="small" style="text-align:right;font-weight:800">'+t.rate+'%</div></div>'}).join(''):'<div class="empty">No attendance records in this range.</div>';$('statsTable').innerHTML=d.members.map(function(m){return '<tr><td>'+esc(m.name)+'</td><td>'+esc(m.circleName)+'</td><td>'+m.rate+'%</td><td>'+m.present+'</td><td>'+m.late+'</td><td>'+m.absent+'</td></tr>'}).join('')||'<tr><td colspan="6">No member data.</td></tr>'}catch(e){toast(e.message)}finally{busy(false)}}
+  async function emailStats(){var to=prompt('Email report to:');if(!to)return;busy(true);try{var r=await server('apiEmailStats',$('statsCircle').value,$('statsFrom').value,$('statsTo').value,to);toast(r.message)}catch(e){toast(e.message)}finally{busy(false)}}
+  function populateRequestForm(){
+    fillSelect('rCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'No specific Circle');
+    fillSelect('rCommunity',state.communityAffiliations.map(function(x){return {value:x,label:x}}),'No preference');
+    fillSelect('rCircleType',state.circleTypes.map(function(x){return {value:x,label:x}}),'No preference');
+    fillSelect('rManner',state.meetingModes.map(function(x){return {value:x,label:x}}),'No preference');
+    fillSelect('rFrequency',state.frequencies.map(function(x){return {value:x,label:x}}),'No preference');
+  }
+  function clearCircleRequest(hideStatus){
+    ['rName','rEmail','rPhone','rLocation','rTime','rCommunity','rInterests','rWhy','rNotes'].forEach(function(id){$(id).value=''});
+    ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency'].forEach(function(id){$(id).selectedIndex=0});
+    if(hideStatus!==false){$('requestStatus').classList.remove('show');$('requestStatus').textContent=''}
+  }
+  function showRequestSuccess(requestId){
+    $('requestStatus').innerHTML='<strong>Your request has been received!</strong><div>Thank you for reaching out. A Circle Leader will contact you as soon as possible.</div>'+(requestId?'<div class="small" style="margin-top:6px">Request ID: '+esc(requestId)+'</div>':'');
+    $('requestStatus').classList.add('show');
+    $('requestStatus').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  async function submitCircleRequest(){
+    var request={name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
+    if(!request.name.trim()){toast('Please enter your name.');$('rName').focus();return}
+    if(!request.email.trim()){toast('Please enter your email address.');$('rEmail').focus();return}
+    $('submitRequestBtn').disabled=true;
+    try{
+      var r=await server('apiSubmitCircleRequest',request);
+      clearCircleRequest(false);
+      showRequestSuccess(r.requestId);
+    }catch(e){toast(e.message)}
+    finally{$('submitRequestBtn').disabled=false}
+  }
+
+  function studyMode(mode){
+    $('studyListTab').classList.toggle('active',mode==='list');
+    $('studyAddTab').classList.toggle('active',mode==='add');
+    $('studyListPane').style.display=mode==='list'?'block':'none';
+    $('studyAddPane').style.display=mode==='add'?'block':'none';
+    if(mode==='list')renderStudyResources();
+    if(mode==='add')renderStudyResourceAdmin();
+  }
+  function renderStudyResourceAdmin(){
+    var p=$('studyAddPane');
+    p.innerHTML='<div class="card"><h2>Add Study Resource</h2><div class="notice">Use this form to publish a resource on the Study Resources page. If a Resource Admin PIN is configured in Settings, it is required here.</div><div class="grid"><div class="field"><label>Title *</label><input id="resourceTitle" placeholder="e.g. Bible Survey"></div><div class="field"><label>Category *</label><input id="resourceCategory" placeholder="e.g. Bible Study"></div><div class="field full"><label>Description</label><textarea id="resourceDescription" placeholder="Briefly describe the resource."></textarea></div><div class="field full"><label>Resource URL *</label><input id="resourceUrl" type="url" placeholder="https://..."></div><div class="field"><label>Sort Order</label><input id="resourceSortOrder" type="number" value="1"></div><div class="field"><label>Admin PIN</label><input id="resourcePin" type="password" placeholder="If configured in Settings"></div></div><div class="actions"><button class="btn primary" onclick="saveStudyResource()">Add Study Resource</button></div></div><div class="card"><h3>Current Resources</h3><div id="studyAdminResourceList"></div></div>';
+    renderStudyAdminList();
+  }
+  function renderStudyAdminList(){
+    var p=$('studyAdminResourceList'),rs=state.studyResources||[];
+    p.innerHTML=rs.length?rs.map(function(r){return '<div class="circle-item"><div><div class="circle-name">'+esc(r.title)+'</div><div class="meta">'+esc(r.category||'Other')+' · '+esc(r.url)+'</div></div><div class="circle-actions"><button class="btn" onclick="deleteStudyResource(\''+esc(r.id)+'\')">Delete</button></div></div>'}).join(''):'<div class="empty">No resources yet.</div>';
+  }
+  async function saveStudyResource(){
+    var r={title:$('resourceTitle').value.trim(),category:$('resourceCategory').value.trim(),description:$('resourceDescription').value.trim(),url:$('resourceUrl').value.trim(),sortOrder:$('resourceSortOrder').value,pin:$('resourcePin').value.trim()};
+    if(!r.title){toast('Please enter a title.');return}if(!r.url){toast('Please enter the resource URL.');return}
+    try{var x=await server('apiSaveStudyResource',r);toast(x.message);await bootstrap();studyMode('add')}catch(e){toast(e.message)}
+  }
+  async function deleteStudyResource(id){
+    if(!confirm('Delete this study resource?'))return;
+    try{var pin=prompt('Enter the Resource Admin PIN if one is configured.','')||'';var x=await server('apiDeleteStudyResource',id,pin);toast(x.message);await bootstrap();studyMode('add')}catch(e){toast(e.message)}
+  }
+
+  function renderStudyResources(){
+    var p=$('studyResourceList');
+    var resources=state.studyResources||[];
+    if(!resources.length){
+      p.innerHTML='<div class="card study-empty"><strong>No study resources have been listed yet.</strong><br><br>Resources added to the <strong>Study Resources</strong> sheet will appear here.</div>';
+    }else{
+      var grouped={};
+      resources.forEach(function(r){var key=r.category||'Other';if(!grouped[key])grouped[key]=[];grouped[key].push(r)});
+      p.innerHTML=Object.keys(grouped).sort().map(function(cat){
+        return '<div class="card"><h2>'+esc(cat)+'</h2><div class="study-resource-grid">'+grouped[cat].map(function(r){
+          return '<div class="study-resource-card"><div class="study-resource-category">'+esc(r.category||'Study Resource')+'</div><h3>'+esc(r.title)+'</h3><p>'+esc(r.description||'')+'</p><a class="btn primary" href="'+esc(r.url)+'" target="_blank" rel="noopener">Open Resource</a></div>';
+        }).join('')+'</div></div>';
+      }).join('');
+    }
+    fillSelect('studyReqCircle',(state.circles||[]).map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');
+  }
+  async function submitStudyRequest(){
+    var request={
+      name:$('studyReqName').value.trim(),
+      email:$('studyReqEmail').value.trim(),
+      circleId:$('studyReqCircle').value,
+      topic:$('studyReqTopic').value.trim(),
+      description:$('studyReqDescription').value.trim(),
+      reason:$('studyReqReason').value.trim(),
+      format:$('studyReqFormat').value
+    };
+    if(!request.name){toast('Please enter your name.');$('studyReqName').focus();return}
+    if(!request.email){toast('Please enter your email address.');$('studyReqEmail').focus();return}
+    if(!request.topic){toast('Please enter the topic you want to study.');$('studyReqTopic').focus();return}
+    $('submitStudyRequestBtn').disabled=true;
+    try{
+      var r=await server('apiSubmitStudyRequest',request);
+      toast(r.message);
+      $('studyReqTopic').value='';
+      $('studyReqDescription').value='';
+      $('studyReqReason').value='';
+    }catch(e){toast(e.message)}
+    finally{$('submitStudyRequestBtn').disabled=false}
+  }
+
+    var chatRequestCircleId='';
+  function chatMode(mode){
+    $('chatListTab').classList.toggle('active',mode==='list');
+    $('chatAdminTab').classList.toggle('active',mode==='admin');
+    $('chatListPane').style.display=mode==='list'?'block':'none';
+    $('chatAdminPane').style.display=mode==='admin'?'block':'none';
+    if(mode==='list')renderChatCircles();
+    if(mode==='admin')renderChatAdmin();
+  }
+  function renderChatCircles(){
+    var p=$('chatCircleList'),circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
+    if(!circles.length){p.innerHTML='<div class="card study-empty">No Circles are registered yet.</div>';return}
+    p.innerHTML=circles.map(function(c){
+      var ready=!!c.chatSpaceUrl,requested=!!c.chatRequestPending;
+      var action=ready?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open your Circle conversation</small></span></a>':requested?'<div><span class="badge">Chat Requested</span><div class="chat-request-note">A Chat Administrator has been notified.</div></div>':'<button class="btn primary" onclick="openChatRequest(\''+esc(c.id)+'\')">Request Circle Chat</button>';
+      return '<div class="chat-status-card"><div class="chat-status-main"><h3>'+esc(c.name)+'</h3><div class="chat-status-meta">'+esc(c.communityAffiliation||'No community affiliation')+'</div><div class="chat-status-meta">'+((state.memberCounts||{})[c.id]||0)+' members</div></div><div>'+action+'</div></div>';
+    }).join('');
+  }
+  function openChatRequest(id){chatRequestCircleId=id;var c=(state.circles||[]).filter(function(x){return x.id===id})[0];if(!c)return;$('chatRequestCircleName').textContent=c.name;$('chatRequestModal').style.display='flex'}
+  function closeChatRequest(){$('chatRequestModal').style.display='none'}
+  async function submitChatRequest(){
+    var r={circleId:chatRequestCircleId,name:$('chatReqName').value.trim(),email:$('chatReqEmail').value.trim(),message:$('chatReqMessage').value.trim()};
+    if(!r.name){toast('Please enter your name.');return}if(!r.email){toast('Please enter your email address.');return}
+    $('submitChatRequestBtn').disabled=true;
+    try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
+  }
+
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
+  bootstrap();
+</script>
+</body>
+</html>

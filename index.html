@@ -43,6 +43,8 @@
       line-height:1.4;
     }
     .brand{padding:14px 16px 4px;text-align:center}.brand img{display:block;margin:0 auto;width:340px;max-width:82%;height:auto}
+      .new-member-row input{width:100%;border:1px solid var(--border);background:#fff;border-radius:11px;padding:10px 12px;outline:none}.new-member-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(54,82,51,.12)}
+    .new-member-row{display:grid;grid-template-columns:1.2fr 1fr 42px;gap:10px;align-items:center;padding:6px 0}@media(max-width:640px){.new-member-row{grid-template-columns:1fr 42px}.new-member-row input:nth-child(2){grid-column:1}.new-member-row .remove,.new-member-row span{grid-row:1/span 2;grid-column:2}}
   </style>
 </head>
 <body>
@@ -179,7 +181,7 @@
     <section id="circlesView" class="view">
       <div class="subnav">
         <button id="circleListTab" onclick="circleMode('list')">Circles</button>
-        <button id="circleEditTab" onclick="circleMode('edit')">Register</button>
+        <button id="circleEditTab" onclick="state.circleBeingEdited=null;state.newMembers=null;circleMode('edit')">Register</button>
         <button id="circleMembersTab" onclick="circleMode('members')">Members</button>
         <button id="circleCommunitiesTab" onclick="circleMode('communities')">Communities</button>
       </div>
@@ -480,10 +482,63 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     finally{busy(false)}
   }
 
-function renderCircleEditor(){var c=state.circleBeingEdited||{};$('circleEditPane').innerHTML='<div class="card"><h2>'+(c.id?'Edit Circle':'Register Circle')+'</h2><div class="notice">Register the Circle once. You can edit its information and members anytime.</div><div class="grid"><div class="field"><label>Circle Name *</label><input id="cName" value="'+esc(c.name||'')+'" placeholder="e.g. Life Group - Pacita"></div><div class="field"><label>Circle Type *</label><select id="cType">'+state.circleTypes.map(function(x){return '<option '+(x===(c.type||state.circleTypes[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Community Affiliation *</label><select id="cCommunity">'+(c.communityAffiliation&&!state.communityAffiliations.some(function(x){return x===c.communityAffiliation})?'<option selected>'+esc(c.communityAffiliation)+'</option>':'')+state.communityAffiliations.map(function(x){return '<option '+(x===(c.communityAffiliation||'')?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Circle Leader</label><input id="cLeader" value="'+esc(c.leaderName||'')+'" placeholder="Leader name"></div><div class="field"><label>Meeting Time</label><input id="cMeetingTime" type="time" value="'+esc(formatMeetingTime(c.meetingTime))+'"></div><div class="field"><label>Meeting Place</label><input id="cMeetingPlace" value="'+esc(c.meetingPlace||'')+'" placeholder="Where do you meet?"></div><div class="field"><label>Frequency</label><select id="cFrequency">'+state.frequencies.map(function(x){return '<option '+(x===(c.frequency||state.frequencies[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label>Manner of Meeting</label><select id="cMode">'+state.meetingModes.map(function(x){return '<option '+(x===(c.mannerOfMeeting||state.meetingModes[0])?'selected':'')+'>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field full"><label>Details</label><textarea id="cDetails" placeholder="Anything else we should know about this Circle">'+esc(c.details||'')+'</textarea></div></div><div class="actions"><button class="btn" onclick="circleMode(\'list\')">Cancel</button><button class="btn primary" onclick="saveCircle()">Save Circle</button>'+(c.id?'<button class="btn danger" onclick="deactivateCircle()">Deactivate Circle</button>':'')+'</div></div>'}
+function renderCircleEditor(){
+    var c=state.circleBeingEdited||{};
+    var isNew=!c.id;
+    if(isNew&&!state.newMembers)state.newMembers=[{name:'',email:''},{name:'',email:''}];
+    var opts=function(list,sel){return (list||[]).map(function(x){return '<option'+(x===sel?' selected':'')+'>'+esc(x)+'</option>'}).join('')};
+    var comms=state.communityAffiliations||[];
+    var extraComm=(c.communityAffiliation&&!comms.some(function(x){return x===c.communityAffiliation}))?'<option selected>'+esc(c.communityAffiliation)+'</option>':'';
+    var notice=isNew?'Register the Circle once. A new Circle needs one leader plus at least two members. You can edit its information and members anytime.':'You can edit this Circle\'s information anytime. Manage its members from the Members tab.';
+    var membersBlock=isNew?`<h3 style="margin-top:20px">Circle Members</h3><div class="small" style="margin-bottom:8px">Enter at least two members (besides the leader). Names are required; email addresses are optional.</div><div id="newMembersEditor"></div><div class="actions" style="justify-content:flex-start"><button class="btn" type="button" onclick="addNewMemberRow()">+ Add another member</button></div>`:'';
+    $('circleEditPane').innerHTML=`<div class="card"><h2>${isNew?'Register Circle':'Edit Circle'}</h2><div class="notice">${esc(notice)}</div>
+      <div class="grid">
+        <div class="field"><label>Circle Name *</label><input id="cName" value="${esc(c.name||'')}" placeholder="e.g. Life Group - Pacita"></div>
+        <div class="field"><label>Circle Type *</label><select id="cType">${opts(state.circleTypes,c.type||state.circleTypes[0])}</select></div>
+        <div class="field"><label>Community Affiliation *</label><select id="cCommunity">${extraComm}${opts(comms,c.communityAffiliation||'')}</select></div>
+        <div class="field"><label>Circle Leader *</label><input id="cLeader" value="${esc(c.leaderName||'')}" placeholder="Leader name"></div>
+        <div class="field"><label>Leader Email (optional)</label><input id="cLeaderEmail" type="email" value="${esc(c.leaderEmail||'')}" placeholder="Leader email address"></div>
+        <div class="field"><label>Meeting Time</label><input id="cMeetingTime" type="time" value="${esc(formatMeetingTime(c.meetingTime))}"></div>
+        <div class="field"><label>Meeting Place</label><input id="cMeetingPlace" value="${esc(c.meetingPlace||'')}" placeholder="Where do you meet?"></div>
+        <div class="field"><label>Frequency</label><select id="cFrequency">${opts(state.frequencies,c.frequency||state.frequencies[0])}</select></div>
+        <div class="field"><label>Manner of Meeting</label><select id="cMode">${opts(state.meetingModes,c.mannerOfMeeting||state.meetingModes[0])}</select></div>
+        <div class="field full"><label>Details</label><textarea id="cDetails" placeholder="Anything else we should know about this Circle">${esc(c.details||'')}</textarea></div>
+      </div>
+      ${membersBlock}
+      <div class="actions"><button class="btn" onclick="circleMode('list')">Cancel</button><button class="btn primary" onclick="saveCircle()">Save Circle</button>${isNew?'':'<button class="btn danger" onclick="deactivateCircle()">Deactivate Circle</button>'}</div></div>`;
+    if(isNew)renderNewMembers();
+  }
+  function renderNewMembers(){
+    var p=$('newMembersEditor');if(!p)return;
+    var rows=state.newMembers||[];
+    p.innerHTML=rows.map(function(m,i){
+      return '<div class="new-member-row"><input value="'+esc(m.name)+'" oninput="state.newMembers['+i+'].name=this.value" placeholder="Member '+(i+1)+' name *" aria-label="Member '+(i+1)+' name"><input type="email" value="'+esc(m.email)+'" oninput="state.newMembers['+i+'].email=this.value" placeholder="Email (optional)" aria-label="Member '+(i+1)+' email">'+(rows.length>2?'<button class="remove" type="button" aria-label="Remove member" onclick="state.newMembers.splice('+i+',1);renderNewMembers()">×</button>':'<span></span>')+'</div>';
+    }).join('');
+  }
+  function addNewMemberRow(){
+    state.newMembers=state.newMembers||[];state.newMembers.push({name:'',email:''});renderNewMembers();
+    var xs=document.querySelectorAll('#newMembersEditor input');if(xs.length>=2)xs[xs.length-2].focus();
+  }
   function newCircle(){state.circleBeingEdited=null;renderCircleEditor()}
   async function editCircle(id){busy(true);try{state.circleBeingEdited=await server('apiGetCircle',id);state.selectedCircleId=id;circleMode('edit')}catch(e){toast(e.message)}finally{busy(false)}}
-  async function saveCircle(){var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap();state.selectedCircleId=r.circleId;circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function saveCircle(){
+    var isNew=!(state.circleBeingEdited&&state.circleBeingEdited.id);
+    var emailOk=function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim())};
+    var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,leaderEmail:$('cLeaderEmail').value,meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};
+    if(!String(c.name||'').trim()){toast('Please enter the Circle name.');return}
+    if(!String(c.leaderName||'').trim()){toast('Registration cannot proceed without a Circle Leader. Please enter the name of the Circle Leader.');return}
+    if(String(c.leaderEmail||'').trim()&&!emailOk(c.leaderEmail)){toast('Please enter a valid email address for the Circle Leader, or leave it blank.');return}
+    if(isNew){
+      var ms=(state.newMembers||[]).filter(function(m){return String(m.name||'').trim()});
+      if(ms.length<2){toast('Registration cannot proceed without at least two members. A Circle must have one leader plus two members to start.');return}
+      for(var i=0;i<ms.length;i++){if(String(ms[i].email||'').trim()&&!emailOk(ms[i].email)){toast('Please enter a valid email address for '+String(ms[i].name).trim()+', or leave it blank.');return}}
+      c.members=ms.map(function(m){return {name:String(m.name).trim(),email:String(m.email||'').trim(),type:'Member',active:true}});
+    }
+    busy(true);
+    try{var r=await server('apiSaveCircle',c);toast(r.message);state.newMembers=null;await bootstrap();state.selectedCircleId=r.circleId;showView('circles')}
+    catch(e){toast(e.message)}
+    finally{busy(false)}
+  }
   async function deactivateCircle(){if(!state.circleBeingEdited)return;if(!confirm('Deactivate this Circle? It will no longer appear in the normal Circle list.'))return;busy(true);try{var r=await server('apiDeactivateCircle',state.circleBeingEdited.id);toast(r.message);await bootstrap();circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
   async function loadMembersEditor(id){
     var circles=state.circles||[];

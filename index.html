@@ -337,7 +337,7 @@
   }
 
   // ===== Standalone hosting: calls a JSON API instead of the Apps Script page runtime =====
-  var API_URL='PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE'; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+  var API_URL='https://script.google.com/macros/s/AKfycbyPgKgEdMLS33TPCWk0JW8REXK5ItaLEHp0FKFpl7o9gE3Zsy4tg_gRrTgNIFyv_zQwPw/exec'; // e.g. https://script.google.com/macros/s/AKfycb.../exec
   function server(fn){
     var args=[].slice.call(arguments,1);
     return fetch(API_URL,{

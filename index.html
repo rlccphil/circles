@@ -396,7 +396,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
       '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
   }
   function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
-  async function loadCircleMemberCountsAndRender(){state.memberCounts=await pCounts;renderCircleList()}
+  async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
   function renderCircleList(){
     var p=$('circleListPane');
     if(!state.circles.length){p.innerHTML='<div class="card empty"><strong>No Circles yet.</strong><br><br>Use the <strong>Register</strong> tab above to register a Circle.</div>';return;}

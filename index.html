@@ -305,7 +305,11 @@
 </div>
 
 <script>
-  var state = {settings:{},circles:[],circleTypes:[],communityAffiliations:[],communities:[],frequencies:[],meetingModes:[],selectedCircleId:'',circleBeingEdited:null,communityBeingEdited:null,membersCircleId:'',members:[],attendance:[],circleCommunityFilter:'',memberCounts:{}};
+  var FALLBACK_TYPES=['Share Group','Help Group','Health Group','Study Group','Life Group','Task Group','Spiritual Formation Group','IMPACT'];
+  var FALLBACK_COMMUNITIES=['Australian Surplus','Crossroads','Kindred Hearts','One in Christ','Real Life Youth','Remix','RLCC Couples','Southridge'];
+  var FALLBACK_FREQUENCIES=['Weekly','Every other week','Monthly','Quarterly','As needed','Other'];
+  var FALLBACK_MODES=['Face-to-face','Online','Hybrid'];
+  var state = {settings:{},circles:[],circleTypes:FALLBACK_TYPES.slice(),communityAffiliations:FALLBACK_COMMUNITIES.slice(),communities:[],frequencies:FALLBACK_FREQUENCIES.slice(),meetingModes:FALLBACK_MODES.slice(),todayStudy:null,selectedCircleId:'',circleBeingEdited:null,communityBeingEdited:null,membersCircleId:'',members:[],attendance:[],circleCommunityFilter:'',memberCounts:{}};
   function $(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
   function formatTrendDate(value){
@@ -366,63 +370,22 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var parts=d.split('-');
     var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
     $('todayDate').textContent=date.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    renderTodayStudy(d);
+    renderTodayStudy(state.todayStudy);
   }
 
-  function renderTodayStudy(iso){
+  function renderTodayStudy(study){
     var p=$('todayStudyContent');
-    var studies={
-      '2026-09-21':{
-        title:'Faithfulness in the Ordinary',
-        reading:'Romans 16:1–16',
-        focus:'Romans 16:1–2',
-        intro:'Paul closes his letter to the Romans by naming and honoring ordinary people who served Christ faithfully. Their names remind us that God values the quiet, relational work of ministry.',
-        reflection:'Romans 16 is easy to skim because it is filled with names. But Paul slows down long enough to notice people. Phoebe is commended as a servant of the church. Priscilla and Aquila are remembered as fellow workers. Others are greeted by name because their lives and labor mattered to the gospel. The Christian life is not only about what happens on a platform. Much of God’s work happens through people who welcome others, encourage them, open their homes, carry burdens, serve quietly, and remain faithful over time. A Circle is one of those places where this kind of ministry becomes visible. Today, ask God to help you notice the people around you—and to become the kind of person whose ordinary faithfulness strengthens others.',
-        questions:[
-          'Who has quietly helped you grow in your faith, and what can you thank God for in that person?',
-          'What ordinary act of service or encouragement might God be inviting you to offer someone today?',
-          'How can your Circle become a place where people are noticed, valued, and strengthened in their walk with Jesus?'
-        ],
-        prayer:'Lord Jesus, thank You for the people who faithfully serve You in ways that are often unseen. Teach me to notice others, encourage them, and faithfully serve where You have placed me. Make my ordinary actions a blessing to the people around me. Amen.',
-        practice:'Notice one person today who may need encouragement. Send a message, make a call, or speak a specific word of appreciation—and do it simply because you want to strengthen that person in Christ.'
-      }
-    };
-    var s=studies[iso];
-    if(!s){p.innerHTML='<strong>Today’s study is being prepared.</strong><br><br>The daily study will appear here as it becomes available.';return;}
+    if(!study){p.className='today-empty';p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>The daily study will appear here as it becomes available.';return;}
     p.className='today-study';
-    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.reading)+'</strong><span>Today’s Focus: '+esc(s.focus)+'</span></div></div>'+
-      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.reflection)+'</p></div>'+
-      '<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>'+
-      '<div class="today-study-block"><h4>🙏 Prayer</h4><p>'+esc(s.prayer)+'</p></div>'+
-      '<div class="today-study-block"><h4>👣 Today’s Practice</h4><p>'+esc(s.practice)+'</p></div>'+
-      '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
-  }
-  function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
-  async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
-  function renderCircleList(){
-    var p=$('circleListPane');
-    if(!state.circles.length){p.innerHTML='<div class="card empty"><strong>No Circles yet.</strong><br><br>Use the <strong>Register</strong> tab above to register a Circle.</div>';return;}
-    var grouped={};
-    state.circles.slice().sort(function(a,b){var ac=String(a.communityAffiliation||'').toLowerCase(),bc=String(b.communityAffiliation||'').toLowerCase();return ac.localeCompare(bc)||String(a.name||'').localeCompare(String(b.name||''));}).forEach(function(c){var key=c.communityAffiliation||'Not specified';if(!grouped[key])grouped[key]=[];grouped[key].push(c);});
-    p.innerHTML=Object.keys(grouped).sort().map(function(community){return '<div class="card"><h3>'+esc(community)+'</h3><div class="circle-list">'+grouped[community].map(function(c){return `<div class="circle-item"><div class="circle-info" onclick="editCircle('${esc(c.id)}')"><div class="circle-name">${esc(c.name)} <span class="badge">${esc(c.type)}</span></div><div class="meta">${esc(c.communityAffiliation||'No community affiliation')}</div><div class="meta">Leader: ${esc(c.leaderName||'Not specified')} · ${esc(c.frequency||'')} · ${esc(c.mannerOfMeeting||'')}</div><div class="meta"><strong>${((state.memberCounts||{})[c.id]||0)}</strong> member${(((state.memberCounts||{})[c.id]||0)===1?'':'s')}</div><div class="meta">${esc(c.meetingPlace||'')}${formatMeetingTime(c.meetingTime)?' · '+(function(){var t=formatMeetingTime(c.meetingTime).split(':');var h=Number(t[0]),m=t[1]||'00';return ((h%12)||12)+':'+m+' '+(h<12?'AM':'PM')})():''}</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCircle('${esc(c.id)}')">Edit Circle</button><button class="btn" onclick="state.selectedCircleId='${esc(c.id)}';state.membersCircleId='${esc(c.id)}';circleMode('members')">Members</button>${c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open your Circle conversation</small></span></a>':''}</div></div>`;}).join('')+'</div></div>';}).join('');
-  }
-  function renderChatAdmin(){
-    var p=$('chatAdminPane');
-    var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
-    p.innerHTML='<div class="card"><h2>Create Circle Chat</h2><div class="notice"><strong>RLCC Chat Administrator:</strong> Select a Circle and the app will create a named Google Chat Space, using the Circle roster emails as initial members. The Space is created as a collaboration space.</div><div class="grid"><div class="field"><label>Circle *</label><select id="chatCreateCircle"></select></div><div class="field"><label>Administrator PIN</label><input id="chatCreatePin" type="password" placeholder="If configured in Settings"></div></div><div class="actions"><button class="btn primary" onclick="createCircleChat()">Create Circle Chat</button></div></div><div class="card"><h3>Existing Circle Chats</h3><div id="chatAdminStatus"></div></div>';
-    fillSelect('chatCreateCircle',circles.map(function(c){return {value:c.id,label:c.name+' — '+(c.communityAffiliation||'No community')}}),'Choose a Circle');
-    renderChatAdminStatus();
-  }
-  function renderChatAdminStatus(){
-    var p=$('chatAdminStatus'); var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
-    if(!circles.length){p.innerHTML='<div class="empty">No Circles are registered.</div>';return}
-    p.innerHTML=circles.map(function(c){return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">'+esc(c.communityAffiliation||'No community affiliation')+' · '+((state.memberCounts||{})[c.id]||0)+' members</div></div><div class="circle-actions">'+(c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open chat</small></span></a><span class="badge">Chat Ready</span>':'<span class="badge">Not Yet Set Up</span>')+'</div></div>'}).join('');
-  }
-  async function createCircleChat(){
-    var id=$('chatCreateCircle').value,pin=$('chatCreatePin').value.trim();
-    if(!id){toast('Please choose a Circle.');return}
-    busy(true);
-    try{var r=await server('apiCreateCircleChat',id,pin);toast(r.message);await bootstrap();chatMode('admin')}catch(e){toast(e.message)}finally{busy(false)}
+    var qHtml=(study.questions&&study.questions.length)?('<div class="today-study-block"><h4>\uD83D\uDCAC Discussion</h4><ol>'+study.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>'):'';
+    p.innerHTML=
+      '<div class="today-study-block"><h4>\uD83D\uDCD6 Scripture</h4><div class="today-reading">'+
+        (study.citation?'<strong>Today\u2019s Reading: '+esc(study.citation)+'</strong>':'')+
+        (study.title?'<span>'+esc(study.title)+'</span>':'')+
+      '</div></div>'+
+      (study.explanation?'<div class="today-study-block"><h4>\uD83D\uDCAD Reflection</h4><p>'+esc(study.explanation)+'</p></div>':'')+
+      (study.application?'<div class="today-study-block"><h4>\uD83D\uDD11 Practice</h4><p>'+esc(study.application)+'</p></div>':'')+
+      qHtml;
   }
 
   function renderCommunities(){
@@ -780,7 +743,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{$('accountLabel').textContent='Loading…';var pChat=server('apiGetChatRequestStatuses');pChat.catch(function(){});var pCounts=server('apiGetCircleMemberCounts').catch(function(){return {}});var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await pChat;state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();state.memberCounts=await pCounts;showView('today')}catch(e){toast(e.message||'The app could not load.')}}
+async function bootstrap(){try{$('accountLabel').textContent='Loading…';var pChat=server('apiGetChatRequestStatuses');pChat.catch(function(){});var pCounts=server('apiGetCircleMemberCounts').catch(function(){return {}});var pStudy=server('apiGetTodayStudy').catch(function(){return null});var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await pChat;state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=(d.circleTypes&&d.circleTypes.length)?d.circleTypes:FALLBACK_TYPES.slice();state.communityAffiliations=(d.communityAffiliations&&d.communityAffiliations.length)?d.communityAffiliations:FALLBACK_COMMUNITIES.slice();state.communities=d.communities||[];state.frequencies=(d.frequencies&&d.frequencies.length)?d.frequencies:FALLBACK_FREQUENCIES.slice();state.meetingModes=(d.meetingModes&&d.meetingModes.length)?d.meetingModes:FALLBACK_MODES.slice();state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();state.memberCounts=await pCounts;state.todayStudy=await pStudy;showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

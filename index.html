@@ -388,6 +388,36 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
       qHtml;
   }
 
+  function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
+  async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
+  function renderCircleList(){
+    var p=$('circleListPane');
+    if(!state.circles.length){p.innerHTML='<div class="card empty"><strong>No Circles yet.</strong><br><br>Use the <strong>Register</strong> tab above to register a Circle.</div>';return;}
+    var grouped={};
+    state.circles.slice().sort(function(a,b){var ac=String(a.communityAffiliation||'').toLowerCase(),bc=String(b.communityAffiliation||'').toLowerCase();return ac.localeCompare(bc)||String(a.name||'').localeCompare(String(b.name||''));}).forEach(function(c){var key=c.communityAffiliation||'Not specified';if(!grouped[key])grouped[key]=[];grouped[key].push(c);});
+    p.innerHTML=Object.keys(grouped).sort().map(function(community){return '<div class="card"><h3>'+esc(community)+'</h3><div class="circle-list">'+grouped[community].map(function(c){return `<div class="circle-item"><div class="circle-info" onclick="editCircle('${esc(c.id)}')"><div class="circle-name">${esc(c.name)} <span class="badge">${esc(c.type)}</span></div><div class="meta">${esc(c.communityAffiliation||'No community affiliation')}</div><div class="meta">Leader: ${esc(c.leaderName||'Not specified')} · ${esc(c.frequency||'')} · ${esc(c.mannerOfMeeting||'')}</div><div class="meta"><strong>${((state.memberCounts||{})[c.id]||0)}</strong> member${(((state.memberCounts||{})[c.id]||0)===1?'':'s')}</div><div class="meta">${esc(c.meetingPlace||'')}${formatMeetingTime(c.meetingTime)?' · '+(function(){var t=formatMeetingTime(c.meetingTime).split(':');var h=Number(t[0]),m=t[1]||'00';return ((h%12)||12)+':'+m+' '+(h<12?'AM':'PM')})():''}</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCircle('${esc(c.id)}')">Edit Circle</button><button class="btn" onclick="state.selectedCircleId='${esc(c.id)}';state.membersCircleId='${esc(c.id)}';circleMode('members')">Members</button>${c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open your Circle conversation</small></span></a>':''}</div></div>`;}).join('')+'</div></div>';}).join('');
+  }
+  function renderChatAdmin(){
+    var p=$('chatAdminPane');
+    var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
+    p.innerHTML='<div class="card"><h2>Create Circle Chat</h2><div class="notice"><strong>RLCC Chat Administrator:</strong> Select a Circle and the app will create a named Google Chat Space, using the Circle roster emails as initial members. The Space is created as a collaboration space.</div><div class="grid"><div class="field"><label>Circle *</label><select id="chatCreateCircle"></select></div><div class="field"><label>Administrator PIN</label><input id="chatCreatePin" type="password" placeholder="If configured in Settings"></div></div><div class="actions"><button class="btn primary" onclick="createCircleChat()">Create Circle Chat</button></div></div><div class="card"><h3>Existing Circle Chats</h3><div id="chatAdminStatus"></div></div>';
+    fillSelect('chatCreateCircle',circles.map(function(c){return {value:c.id,label:c.name+' — '+(c.communityAffiliation||'No community')}}),'Choose a Circle');
+    renderChatAdminStatus();
+  }
+  function renderChatAdminStatus(){
+    var p=$('chatAdminStatus'); var circles=(state.circles||[]).slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''))});
+    if(!circles.length){p.innerHTML='<div class="empty">No Circles are registered.</div>';return}
+    p.innerHTML=circles.map(function(c){return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">'+esc(c.communityAffiliation||'No community affiliation')+' · '+((state.memberCounts||{})[c.id]||0)+' members</div></div><div class="circle-actions">'+(c.chatSpaceUrl?'<a class="chat-button" href="'+esc(c.chatSpaceUrl)+'" target="_blank" rel="noopener"><span class="chat-icon">💬</span><span><strong>Circle Chat</strong><small>Open chat</small></span></a><span class="badge">Chat Ready</span>':'<span class="badge">Not Yet Set Up</span>')+'</div></div>'}).join('');
+  }
+  async function createCircleChat(){
+    var id=$('chatCreateCircle').value,pin=$('chatCreatePin').value.trim();
+    if(!id){toast('Please choose a Circle.');return}
+    busy(true);
+    try{var r=await server('apiCreateCircleChat',id,pin);toast(r.message);await bootstrap();chatMode('admin')}catch(e){toast(e.message)}finally{busy(false)}
+  }
+
+  
+
   function renderCommunities(){
     var p=$('circleCommunitiesPane');
     var active=state.communities.filter(function(c){return c.active;});

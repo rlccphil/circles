@@ -348,35 +348,35 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var parts=d.split('-');
     var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
     $('todayDate').textContent=date.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    renderTodayStudy(d);
+    loadTodayStudy();
   }
 
-  function renderTodayStudy(iso){
+  async function loadTodayStudy(){
     var p=$('todayStudyContent');
-    var studies={
-      '2026-09-21':{
-        title:'Faithfulness in the Ordinary',
-        reading:'Romans 16:1–16',
-        focus:'Romans 16:1–2',
-        intro:'Paul closes his letter to the Romans by naming and honoring ordinary people who served Christ faithfully. Their names remind us that God values the quiet, relational work of ministry.',
-        reflection:'Romans 16 is easy to skim because it is filled with names. But Paul slows down long enough to notice people. Phoebe is commended as a servant of the church. Priscilla and Aquila are remembered as fellow workers. Others are greeted by name because their lives and labor mattered to the gospel. The Christian life is not only about what happens on a platform. Much of God’s work happens through people who welcome others, encourage them, open their homes, carry burdens, serve quietly, and remain faithful over time. A Circle is one of those places where this kind of ministry becomes visible. Today, ask God to help you notice the people around you—and to become the kind of person whose ordinary faithfulness strengthens others.',
-        questions:[
-          'Who has quietly helped you grow in your faith, and what can you thank God for in that person?',
-          'What ordinary act of service or encouragement might God be inviting you to offer someone today?',
-          'How can your Circle become a place where people are noticed, valued, and strengthened in their walk with Jesus?'
-        ],
-        prayer:'Lord Jesus, thank You for the people who faithfully serve You in ways that are often unseen. Teach me to notice others, encourage them, and faithfully serve where You have placed me. Make my ordinary actions a blessing to the people around me. Amen.',
-        practice:'Notice one person today who may need encouragement. Send a message, make a call, or speak a specific word of appreciation—and do it simply because you want to strengthen that person in Christ.'
-      }
-    };
-    var s=studies[iso];
-    if(!s){p.innerHTML='<strong>Today’s study is being prepared.</strong><br><br>The daily study will appear here as it becomes available.';return;}
+    p.className='';
+    p.innerHTML='<strong>Loading today\u2019s study\u2026</strong>';
+    try{
+      var s=await server('apiGetTodayStudy');
+      renderTodayStudy(s);
+    }catch(e){
+      p.className='';
+      p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>'+esc(e&&e.message?e.message:'Please check back shortly.');
+    }
+  }
+
+  function renderTodayStudy(s){
+    var p=$('todayStudyContent');
+    if(!s||!s.explanation){
+      p.className='';
+      p.innerHTML='<strong>'+esc((s&&s.title)||'Today\u2019s study is being prepared.')+'</strong><br><br>'+esc((s&&s.explanation)||'The daily study will appear here as it becomes available.');
+      return;
+    }
     p.className='today-study';
-    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.reading)+'</strong><span>Today’s Focus: '+esc(s.focus)+'</span></div></div>'+
-      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.reflection)+'</p></div>'+
-      '<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>'+
-      '<div class="today-study-block"><h4>🙏 Prayer</h4><p>'+esc(s.prayer)+'</p></div>'+
-      '<div class="today-study-block"><h4>👣 Today’s Practice</h4><p>'+esc(s.practice)+'</p></div>'+
+    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.citation||'')+'</strong></div></div>'+
+      (s.title?'<div class="today-study-block"><h4>✨ '+esc(s.title)+'</h4></div>':'')+
+      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.explanation)+'</p></div>'+
+      (s.application?'<div class="today-study-block"><h4>👣 Application</h4><p>'+esc(s.application)+'</p></div>':'')+
+      ((s.questions&&s.questions.length)?'<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>':'')+
       '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
   }
   function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}

@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Circles</title>
+  <title>Welcome to our Circles</title>
   <style>
     :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
@@ -48,7 +48,7 @@
 <div class="app">
   <header class="top">
     <div class="topline">
-      <div class="title" id="appTitle">Circle Request, Registration, and Attendance</div>
+      <div class="title" id="appTitle">Welcome to our Circles</div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="account" id="accountLabel">Choose a Circle to begin</div>
         <div class="nav-wrap">
@@ -68,7 +68,7 @@
 
   <main>
 
-    <section id="todayView" class="view active">
+    <section id="todayView" class="view">
       <div class="card today-hero">
         <div class="eyebrow">Your Circle Journey</div>
         <h1>Today</h1>
@@ -355,158 +355,30 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var p=$('todayStudyContent');
     p.className='';
     p.innerHTML='<strong>Loading today\u2019s study\u2026</strong>';
-
-    // Helper: detect if the server returned an error / incomplete study
-    function isBadStudy(s){
-      if(!s || typeof s !== 'object') return true;
-      if(!s.explanation) return true;
-      var expl = String(s.explanation || '').toLowerCase();
-      if(expl.indexOf('http 503') !== -1) return true;
-      if(expl.indexOf('high demand') !== -1) return true;
-      if(expl.indexOf('could not be generated') !== -1) return true;
-      if(expl.indexOf('technical detail for troubleshooting') !== -1) return true;
-      if(expl.indexOf('gemini') !== -1 && expl.indexOf('error') !== -1) return true;
-      if(s.title && String(s.title).toLowerCase().indexOf('could not be generated') !== -1) return true;
-      // Must have at least a citation or text to be useful
-      if(!s.citation && !s.text) return true;
-      return false;
-    }
-
     try{
-      var s = await server('apiGetTodayStudy');
-      if(!isBadStudy(s)){
-        renderTodayStudy(s);
-        return;
-      }
-      console.warn('Server study incomplete or error, using public VOTD fallback');
+      var s=await server('apiGetTodayStudy');
+      renderTodayStudy(s);
     }catch(e){
-      console.warn('apiGetTodayStudy failed:', e && e.message);
-    }
-
-    // Public Verse of the Day + local generation
-    try{
-      var votd = await fetchPublicVerseOfTheDay();
-      var study = generateStudyFromVerse(votd);
-      renderTodayStudy(study);
-    }catch(e2){
       p.className='';
-      p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>Please check your connection and try again later.';
+      p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>'+esc(e&&e.message?e.message:'Please check back shortly.');
     }
-  }
-
-  async function fetchPublicVerseOfTheDay(){
-    // Primary: Midvash (free, no key, CORS open, daily consistent)
-    try{
-      var res = await fetch('https://api.midvash.com/v1/votd?language=en&version=web', {cache:'default'});
-      if(res.ok){
-        var d = await res.json();
-        if(d && d.text && d.reference){
-          return {
-            citation: d.reference,
-            text: d.text.trim(),
-            version: (d.version || 'WEB').toUpperCase(),
-            copyright: d.copyright || 'World English Bible (Public Domain)'
-          };
-        }
-      }
-    }catch(e){ console.warn('Midvash VOTD failed', e); }
-
-    // Secondary: OurManna
-    try{
-      var res2 = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json&order=daily', {cache:'default'});
-      if(res2.ok){
-        var d2 = await res2.json();
-        var v = d2 && d2.verse && d2.verse.details;
-        if(v && v.text && v.reference){
-          return {
-            citation: v.reference,
-            text: v.text.trim(),
-            version: (v.version || 'NIV').toUpperCase(),
-            copyright: 'Powered by OurManna.com'
-          };
-        }
-      }
-    }catch(e){ console.warn('OurManna VOTD failed', e); }
-
-    // Hard-coded final fallback
-    return {
-      citation: 'John 3:16',
-      text: 'For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.',
-      version: 'WEB',
-      copyright: 'World English Bible (Public Domain)'
-    };
-  }
-
-  function generateStudyFromVerse(votd){
-    var citation = votd.citation || '';
-    var text = votd.text || '';
-    var version = votd.version || '';
-    var lower = (text + ' ' + citation).toLowerCase();
-
-    var theme = 'faith and trust';
-    if(/love|loved|heart|compassion/.test(lower)) theme = 'God\'s love';
-    else if(/faith|believe|trust|assurance/.test(lower)) theme = 'faith';
-    else if(/peace|rest|still|calm/.test(lower)) theme = 'peace';
-    else if(/strength|power|strong|courage|fear not|afraid/.test(lower)) theme = 'strength and courage';
-    else if(/hope|future|plan/.test(lower)) theme = 'hope';
-    else if(/forgive|mercy|grace|sin/.test(lower)) theme = 'grace and forgiveness';
-    else if(/pray|prayer|ask|seek/.test(lower)) theme = 'prayer';
-    else if(/light|dark|path|way|guide/.test(lower)) theme = 'guidance';
-    else if(/joy|rejoice|glad|praise|thankful|thanks/.test(lower)) theme = 'joy and gratitude';
-    else if(/serve|servant|humble|others/.test(lower)) theme = 'serving others';
-    else if(/holy|holiness|pure|righteous/.test(lower)) theme = 'holiness';
-    else if(/community|together|one another|body|church/.test(lower)) theme = 'community';
-    else if(/judge|judgment|measure|speck|plank|hypocrite/.test(lower)) theme = 'humility and judgment';
-
-    var title = 'Walking in ' + theme.charAt(0).toUpperCase() + theme.slice(1);
-
-    var explanation = 'Today\'s verse invites us to reflect on ' + theme + '. ' +
-      'The words of Scripture remind us that God is near and that His truth speaks into everyday life. ' +
-      'As we read "' + text.replace(/"/g, '') + '", we are called to let this truth shape our thoughts, relationships, and choices today.';
-
-    var application = 'Take a quiet moment to ask the Holy Spirit how this verse applies to your current season. ' +
-      'Is there a relationship that needs the light of this truth? A worry you can release? A step of obedience you can take? ' +
-      'Write down one practical way you will live out this verse before your next Circle gathering.';
-
-    var questions = [
-      'What word or phrase in this verse stands out to you most today, and why?',
-      'How does this verse encourage or challenge the way you are currently living?',
-      'In what situation this week can you put this truth into practice?',
-      'How might sharing this verse with someone in your Circle strengthen both of you?'
-    ];
-
-    return {
-      title: title,
-      citation: citation + (version ? ' (' + version + ')' : ''),
-      text: text,
-      explanation: explanation,
-      application: application,
-      questions: questions,
-      copyrightNote: votd.copyright || ''
-    };
   }
 
   function renderTodayStudy(s){
     var p=$('todayStudyContent');
-    if(!s || !s.explanation){
+    if(!s||!s.explanation){
       p.className='';
       p.innerHTML='<strong>'+esc((s&&s.title)||'Today\u2019s study is being prepared.')+'</strong><br><br>'+esc((s&&s.explanation)||'The daily study will appear here as it becomes available.');
       return;
     }
     p.className='today-study';
-    var scriptureBlock = '<div class="today-study-block"><h4>\ud83d\udcd6 Scripture</h4><div class="today-reading"><strong>Today\u2019s Reading: '+esc(s.citation||'')+'</strong>';
-    if(s.text){
-      scriptureBlock += '<p style="margin:10px 0 0;font-size:16px;line-height:1.55;font-style:italic">"'+esc(s.text)+'"</p>';
-    }
-    scriptureBlock += '</div></div>';
-    p.innerHTML = scriptureBlock +
-      (s.title ? '<div class="today-study-block"><h4>\u2728 '+esc(s.title)+'</h4></div>' : '') +
-      '<div class="today-study-block"><h4>\ud83d\udcad Reflection</h4><p>'+esc(s.explanation)+'</p></div>' +
-      (s.application ? '<div class="today-study-block"><h4>\ud83d\udc63 Application</h4><p>'+esc(s.application)+'</p></div>' : '') +
-      ((s.questions && s.questions.length) ? '<div class="today-study-block"><h4>\ud83d\udcac Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>' : '') +
-      '<div class="today-copyright">'+(s.copyrightNote ? esc(s.copyrightNote) : 'Scripture taken from a publicly available daily verse source. The reflection, application, and discussion questions are provided to help your Circle engage God\u2019s Word together.')+'</div>';
+    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.citation||'')+'</strong></div></div>'+
+      (s.title?'<div class="today-study-block"><h4>✨ '+esc(s.title)+'</h4></div>':'')+
+      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.explanation)+'</p></div>'+
+      (s.application?'<div class="today-study-block"><h4>👣 Application</h4><p>'+esc(s.application)+'</p></div>':'')+
+      ((s.questions&&s.questions.length)?'<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>':'')+
+      '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
   }
-
   function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
   async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
   function renderCircleList(){
@@ -840,42 +712,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){
-    // Always show Today first so the page is never blank
-    state.todayIso = state.todayIso || new Date().toISOString().slice(0,10);
-    showView('today');
-
-    try{
-      var d=await server('apiGetBootstrap');
-      if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');
-      state.settings=d.settings||{};
-      var chatStatuses={};
-      try{ chatStatuses=await server('apiGetChatRequestStatuses'); }catch(e){ console.warn('Chat statuses unavailable', e); }
-      state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});
-      state.circleTypes=d.circleTypes||[];
-      state.communityAffiliations=d.communityAffiliations||[];
-      state.communities=d.communities||[];
-      state.frequencies=d.frequencies||[];
-      state.meetingModes=d.meetingModes||[];
-      state.studyResources=d.studyResources||[];
-      state.todayIso=d.todayIso || state.todayIso;
-      $('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';
-      $('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';
-      state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');
-      state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;
-      fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');
-      $('attendanceCircle').value=state.selectedCircleId;
-      fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');
-      $('statsCircle').value='';
-      $('eventDate').value=state.todayIso;
-      populateRequestForm();
-      try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}
-      showView('today');
-    }catch(e){
-      console.error('Bootstrap failed:', e);
-      $('accountLabel').textContent = 'Offline / limited mode';
-    }
-  }
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Welcome to our Circles';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

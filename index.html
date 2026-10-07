@@ -84,6 +84,8 @@
         <div id="todayStudyContent">
           <iframe data-testid="embed-iframe" title="Daily Circle Study podcast" style="border-radius:12px" src="https://open.spotify.com/embed/show/2uNiOXopahquZlDHfJFHar?utm_source=generator&si=c6c7ec32fc4a41ca" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
+        <div id="todayQuestions" class="today-study" style="margin-top:14px;display:none"></div>
+        <div style="margin-top:14px"><a class="btn primary" href="https://rlccphil.churchcenter.com/channels/23593" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">📖 Read the Notes</a></div>
       </div>
 
       <div class="card">
@@ -345,12 +347,30 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
   function busy(on){document.body.style.cursor=on?'wait':'default';$('saveAttendanceBtn').disabled=on}
   function fillSelect(id,items,placeholder){var s=$(id);s.innerHTML='';if(placeholder){var o=document.createElement('option');o.value='';o.textContent=placeholder;s.appendChild(o)}items.forEach(function(x){var o=document.createElement('option');o.value=x.value;o.textContent=x.label;s.appendChild(o)})}
   function toggleMenu(){var p=$('menuPanel');var b=$('menuBtn');var open=!p.classList.contains('open');p.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open))} function closeMenu(){var p=$('menuPanel');var b=$('menuBtn');if(p){p.classList.remove('open')}if(b){b.setAttribute('aria-expanded','false')}} function showView(view){['today','home','attendance','circles','stats','study','chat','more'].forEach(function(v){var el=$(v+'View');if(el)el.classList.toggle('active',v===view);var nav=$('nav'+v.charAt(0).toUpperCase()+v.slice(1));if(nav)nav.classList.toggle('active',v===view)});closeMenu();if(view==='today')renderToday();if(view==='circles')circleMode('list');if(view==='attendance')loadAttendance(true);if(view==='stats'){loadStats();showDashboardCharts()}if(view==='study')studyMode('list');if(view==='chat')chatMode('list')}
+  // ===== DAILY DISCUSSION QUESTIONS - update these each day =====
+  var DAILY_STUDY={
+    title:"The Story of Joseph - Day 4: Faith Sees Beyond the Wound",
+    questions:[
+      "Joseph's brothers had hurt him deeply, yet he did not let what he could see in that moment become the whole story. What stood out to you most in today's message?",
+      "Where is a hurt or disappointment making it hard for you to see what God may be doing beyond it?",
+      "What is one step of faith you can take this week, and how can your Circle pray for you?"
+    ]
+  };
+  function renderDailyQuestions(){
+    var box=$('todayQuestions');
+    if(!box||!DAILY_STUDY||!DAILY_STUDY.questions||!DAILY_STUDY.questions.length){if(box)box.style.display='none';return;}
+    box.innerHTML='<div class="today-study-block"><h4>\uD83D\uDCAC Discussion Questions</h4>'+
+      (DAILY_STUDY.title?'<p style="margin-bottom:10px"><em>'+esc(DAILY_STUDY.title)+'</em></p>':'')+
+      '<ol class="today-questions">'+DAILY_STUDY.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>';
+    box.style.display='block';
+  }
   function renderToday(){
     var d=state.todayIso||new Date().toISOString().slice(0,10);
     var parts=d.split('-');
     var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
     $('todayDate').textContent=date.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
     /* loadTodayStudy(); -- replaced by the embedded podcast; re-enable to restore the written daily study */
+    renderDailyQuestions();
   }
 
   async function loadTodayStudy(){

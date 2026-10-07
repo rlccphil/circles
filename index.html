@@ -347,21 +347,67 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
   function busy(on){document.body.style.cursor=on?'wait':'default';$('saveAttendanceBtn').disabled=on}
   function fillSelect(id,items,placeholder){var s=$(id);s.innerHTML='';if(placeholder){var o=document.createElement('option');o.value='';o.textContent=placeholder;s.appendChild(o)}items.forEach(function(x){var o=document.createElement('option');o.value=x.value;o.textContent=x.label;s.appendChild(o)})}
   function toggleMenu(){var p=$('menuPanel');var b=$('menuBtn');var open=!p.classList.contains('open');p.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open))} function closeMenu(){var p=$('menuPanel');var b=$('menuBtn');if(p){p.classList.remove('open')}if(b){b.setAttribute('aria-expanded','false')}} function showView(view){['today','home','attendance','circles','stats','study','chat','more'].forEach(function(v){var el=$(v+'View');if(el)el.classList.toggle('active',v===view);var nav=$('nav'+v.charAt(0).toUpperCase()+v.slice(1));if(nav)nav.classList.toggle('active',v===view)});closeMenu();if(view==='today')renderToday();if(view==='circles')circleMode('list');if(view==='attendance')loadAttendance(true);if(view==='stats'){loadStats();showDashboardCharts()}if(view==='study')studyMode('list');if(view==='chat')chatMode('list')}
-  // ===== DAILY DISCUSSION QUESTIONS - update these each day =====
-  var DAILY_STUDY={
-    title:"The Story of Joseph - Day 4: Faith Sees Beyond the Wound",
-    questions:[
-      "Joseph's brothers had hurt him deeply, yet he did not let what he could see in that moment become the whole story. What stood out to you most in today's message?",
-      "Where is a hurt or disappointment making it hard for you to see what God may be doing beyond it?",
-      "What is one step of faith you can take this week, and how can your Circle pray for you?"
-    ]
+  // ===== DAILY DISCUSSION QUESTIONS =====
+  // Add one entry per devotion date ('YYYY-MM-DD'). The app shows today's entry automatically.
+  // If a date has no entry, the most recent entry from the last 3 days is shown (covers weekends).
+  var DAILY_STUDIES={
+    "2026-10-05":{
+      title:"The Story of Joseph - Day 1: Faith When You Cannot See (Hebrews 11:1)",
+      questions:[
+        "Joseph trusted God with a future he would never see. Where in your life are you asking for certainty before you take the next step?",
+        "What is one thing you know to be true about God that you can hold onto while the rest remains unclear?",
+        "What would it look like to take one faithful step this week without seeing the whole road, and how can your Circle pray for you?"
+      ]
+    },
+    "2026-10-06":{
+      title:"The Story of Joseph - Day 2: Faith Makes Decisions Today Because of Hope for Tomorrow (Hebrews 11:22)",
+      questions:[
+        "Joseph's hope in God led him to make a real decision about his bones. What does your hope in God cause you to do today?",
+        "Where are you tempted to decide mainly from fear, convenience, or what you can see right now?",
+        "If you truly trusted God with your future, what is one choice you would make this week?"
+      ]
+    },
+    "2026-10-07":{
+      title:"The Story of Joseph - Day 3: Faith Does Not Require a Perfect Ending (Genesis 50:24)",
+      questions:[
+        "Joseph died before God's promise was fulfilled, yet Hebrews remembers him as a man of faith. What does this teach you about how we measure faithfulness?",
+        "What have you invested in (a person, a ministry, a prayer) that you may never see the full fruit of? How can you release the outcome to God?",
+        "What is one faithful thing you can do this week without needing recognition or quick results?"
+      ]
+    },
+    "2026-10-08":{
+      title:"The Story of Joseph - Day 4: Faith Sees Beyond the Wound (Genesis 50:20)",
+      questions:[
+        "Joseph refused to let what his brothers did become the whole story. Where do you notice yesterday's pain shaping how you respond to people today?",
+        "Faith does not deny the wound, but it refuses to let the wound have the final word. What does that look like in your life?",
+        "What is one step you can take this week to bring a hurt honestly to God, and how can your Circle pray for you?"
+      ]
+    },
+    "2026-10-09":{
+      title:"The Story of Joseph - Day 5: Living Today With Tomorrow in Mind (Hebrews 11:1)",
+      questions:[
+        "Joseph lived fully in the present while holding on to hope for the future. Where are you tempted to say \"someday\" instead of living faithfully today?",
+        "How does your hope in God change the way you work, serve, rest, and relate to people today?",
+        "What is one ordinary thing you will do this week with the prayer, \"Lord, I trust You with tomorrow, so help me be fully present with You today\"?"
+      ]
+    }
   };
+  function localIsoDate(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}
+  function pickDailyStudy(todayIso){
+    var keys=Object.keys(DAILY_STUDIES).sort(),pick=null,i;
+    for(i=0;i<keys.length;i++){if(keys[i]<=todayIso)pick=keys[i]}
+    if(!pick)return null;
+    var gap=(Date.parse(todayIso+'T00:00:00Z')-Date.parse(pick+'T00:00:00Z'))/86400000;
+    return gap>3?null:DAILY_STUDIES[pick];
+  }
   function renderDailyQuestions(){
     var box=$('todayQuestions');
-    if(!box||!DAILY_STUDY||!DAILY_STUDY.questions||!DAILY_STUDY.questions.length){if(box)box.style.display='none';return;}
+    if(!box)return;
+    var s=pickDailyStudy(state.todayIso||localIsoDate());
+    if(!s||!s.questions||!s.questions.length){box.style.display='none';return;}
     box.innerHTML='<div class="today-study-block"><h4>\uD83D\uDCAC Discussion Questions</h4>'+
-      (DAILY_STUDY.title?'<p style="margin-bottom:10px"><em>'+esc(DAILY_STUDY.title)+'</em></p>':'')+
-      '<ol class="today-questions">'+DAILY_STUDY.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>';
+      (s.title?'<p style="margin-bottom:10px"><em>'+esc(s.title)+'</em></p>':'')+
+      '<ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>';
     box.style.display='block';
   }
   function renderToday(){

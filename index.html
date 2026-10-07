@@ -5,27 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Circles</title>
-
-  <!-- Open Graph / Social Media Preview -->
-  <meta property="og:title" content="Welcome to our Circles">
-  <meta property="og:description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected.">
-  <meta property="og:image" content="https://rlccphil.github.io/circles/og-image.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Welcome to our Circles – Real Life Christian Communities">
-  <meta property="og:url" content="https://rlccphil.github.io/circles/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Circles – RLCC">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Welcome to our Circles">
-  <meta name="twitter:description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected.">
-  <meta name="twitter:image" content="https://rlccphil.github.io/circles/og-image.png">
-
-  <!-- Regular SEO description -->
-  <meta name="description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected at Real Life Christian Communities.">
-
   <style>
     :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
@@ -377,12 +356,117 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     p.className='';
     p.innerHTML='<strong>Loading today\u2019s study\u2026</strong>';
     try{
+      // Prefer the server if it returns a full study
       var s=await server('apiGetTodayStudy');
-      renderTodayStudy(s);
+      if(s && s.explanation && (s.citation || s.title)){
+        renderTodayStudy(s);
+        return;
+      }
     }catch(e){
-      p.className='';
-      p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>'+esc(e&&e.message?e.message:'Please check back shortly.');
+      // Server unavailable or incomplete – fall through to public Verse of the Day
+      console.warn('apiGetTodayStudy failed, using public VOTD fallback:', e && e.message);
     }
+    // Public Verse of the Day fallback (updates every day, no API key required)
+    try{
+      var votd = await fetchPublicVerseOfTheDay();
+      var study = generateStudyFromVerse(votd);
+      renderTodayStudy(study);
+    }catch(e2){
+      p.className='';
+      p.innerHTML='<strong>Today\u2019s study is being prepared.</strong><br><br>Please check your connection and try again later.';
+    }
+  }
+
+  async function fetchPublicVerseOfTheDay(){
+    // Primary: Midvash free VOTD (CORS-friendly, consistent daily verse, public domain WEB)
+    try{
+      var res = await fetch('https://api.midvash.com/v1/votd?language=en&version=web', {cache:'default'});
+      if(res.ok){
+        var d = await res.json();
+        if(d && d.text && d.reference){
+          return {
+            citation: d.reference,
+            text: d.text.trim(),
+            version: (d.version || 'WEB').toUpperCase(),
+            copyright: d.copyright || 'World English Bible (Public Domain)'
+          };
+        }
+      }
+    }catch(e){ console.warn('Midvash VOTD failed', e); }
+
+    // Secondary: OurManna
+    try{
+      var res2 = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json&order=daily', {cache:'default'});
+      if(res2.ok){
+        var d2 = await res2.json();
+        var v = d2 && d2.verse && d2.verse.details;
+        if(v && v.text && v.reference){
+          return {
+            citation: v.reference,
+            text: v.text.trim(),
+            version: (v.version || 'NIV').toUpperCase(),
+            copyright: 'Powered by OurManna.com'
+          };
+        }
+      }
+    }catch(e){ console.warn('OurManna VOTD failed', e); }
+
+    // Final hard-coded fallback so the section never stays empty
+    return {
+      citation: 'John 3:16',
+      text: 'For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.',
+      version: 'WEB',
+      copyright: 'World English Bible (Public Domain)'
+    };
+  }
+
+  function generateStudyFromVerse(votd){
+    var citation = votd.citation || '';
+    var text = votd.text || '';
+    var version = votd.version || '';
+    var lower = (text + ' ' + citation).toLowerCase();
+
+    // Simple theme detection for more relevant content
+    var theme = 'faith and trust';
+    if(/love|loved|heart|compassion/.test(lower)) theme = 'God\'s love';
+    else if(/faith|believe|trust|assurance/.test(lower)) theme = 'faith';
+    else if(/peace|rest|still|calm/.test(lower)) theme = 'peace';
+    else if(/strength|power|strong|courage|fear not|afraid/.test(lower)) theme = 'strength and courage';
+    else if(/hope|future|plan/.test(lower)) theme = 'hope';
+    else if(/forgive|mercy|grace|sin/.test(lower)) theme = 'grace and forgiveness';
+    else if(/pray|prayer|ask|seek/.test(lower)) theme = 'prayer';
+    else if(/light|dark|path|way|guide/.test(lower)) theme = 'guidance';
+    else if(/joy|rejoice|glad|praise|thankful|thanks/.test(lower)) theme = 'joy and gratitude';
+    else if(/serve|servant|humble|others/.test(lower)) theme = 'serving others';
+    else if(/holy|holiness|pure|righteous/.test(lower)) theme = 'holiness';
+    else if(/community|together|one another|body|church/.test(lower)) theme = 'community';
+
+    var title = 'Walking in ' + theme.charAt(0).toUpperCase() + theme.slice(1);
+
+    var explanation = 'Today\'s verse invites us to reflect on ' + theme + '. ' +
+      'The words of Scripture remind us that God is near and that His truth speaks into everyday life. ' +
+      'As we read \"' + text.replace(/"/g, '') + '\", we are called to let this truth shape our thoughts, relationships, and choices today.';
+
+    var application = 'Take a quiet moment to ask the Holy Spirit how this verse applies to your current season. ' +
+      'Is there a relationship that needs the light of this truth? A worry you can release? A step of obedience you can take? ' +
+      'Write down one practical way you will live out this verse before your next Circle gathering.';
+
+    var questions = [
+      'What word or phrase in this verse stands out to you most today, and why?',
+      'How does this verse encourage or challenge the way you are currently living?',
+      'In what situation this week can you put this truth into practice?',
+      'How might sharing this verse with someone in your Circle strengthen both of you?'
+    ];
+
+    return {
+      title: title,
+      citation: citation + (version ? ' (' + version + ')' : ''),
+      text: text,
+      explanation: explanation,
+      application: application,
+      questions: questions,
+      copyrightNote: votd.copyright || ''
+    };
   }
 
   function renderTodayStudy(s){
@@ -393,13 +477,19 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
       return;
     }
     p.className='today-study';
-    p.innerHTML='<div class="today-study-block"><h4>📖 Scripture</h4><div class="today-reading"><strong>Today’s Reading: '+esc(s.citation||'')+'</strong></div></div>'+
-      (s.title?'<div class="today-study-block"><h4>✨ '+esc(s.title)+'</h4></div>':'')+
-      '<div class="today-study-block"><h4>💭 Reflection</h4><p>'+esc(s.explanation)+'</p></div>'+
-      (s.application?'<div class="today-study-block"><h4>👣 Application</h4><p>'+esc(s.application)+'</p></div>':'')+
-      ((s.questions&&s.questions.length)?'<div class="today-study-block"><h4>💬 Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>':'')+
-      '<div class="today-copyright">RCL reading reference: Revised Common Lectionary Daily Readings, copyright © 2005 Consultation on Common Texts. Used by permission. The Scripture text itself is not reproduced here.</div>';
+    var scriptureBlock = '<div class="today-study-block"><h4>\ud83d\udcd6 Scripture</h4><div class="today-reading"><strong>Today\u2019s Reading: '+esc(s.citation||'')+'</strong>';
+    if(s.text){
+      scriptureBlock += '<p style="margin:10px 0 0;font-size:16px;line-height:1.55;font-style:italic">\"'+esc(s.text)+'\"</p>';
+    }
+    scriptureBlock += '</div></div>';
+    p.innerHTML = scriptureBlock +
+      (s.title?'<div class="today-study-block"><h4>\u2728 '+esc(s.title)+'</h4></div>':'')+
+      '<div class="today-study-block"><h4>\ud83d\udcad Reflection</h4><p>'+esc(s.explanation)+'</p></div>'+
+      (s.application?'<div class="today-study-block"><h4>\ud83d\udc63 Application</h4><p>'+esc(s.application)+'</p></div>':'')+
+      ((s.questions&&s.questions.length)?'<div class="today-study-block"><h4>\ud83d\udcac Discussion</h4><ol class="today-questions">'+s.questions.map(function(q){return '<li>'+esc(q)+'</li>'}).join('')+'</ol></div>':'')+
+      '<div class="today-copyright">'+(s.copyrightNote ? esc(s.copyrightNote) : 'Scripture taken from a publicly available daily verse source. The reflection, application, and discussion questions are provided to help your Circle engage God\u2019s Word together.')+'</div>';
   }
+
   function circleMode(mode){$('circleListTab').classList.toggle('active',mode==='list');$('circleEditTab').classList.toggle('active',mode==='edit');$('circleMembersTab').classList.toggle('active',mode==='members');$('circleCommunitiesTab').classList.toggle('active',mode==='communities');$('circleListPane').style.display=mode==='list'?'block':'none';$('circleEditPane').style.display=mode==='edit'?'block':'none';$('circleMembersPane').style.display=mode==='members'?'block':'none';$('circleCommunitiesPane').style.display=mode==='communities'?'block':'none';if(mode==='list')loadCircleMemberCountsAndRender();if(mode==='edit')renderCircleEditor();if(mode==='members')loadMembersEditor(state.selectedCircleId||state.membersCircleId||((state.circles[0]||{}).id||''));if(mode==='communities'){renderCommunities();newCommunity()}}
   async function loadCircleMemberCountsAndRender(){try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}renderCircleList()}
   function renderCircleList(){

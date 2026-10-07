@@ -445,7 +445,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
 
     var explanation = 'Today\'s verse invites us to reflect on ' + theme + '. ' +
       'The words of Scripture remind us that God is near and that His truth speaks into everyday life. ' +
-      'As we read \"' + text.replace(/"/g, '') + '\", we are called to let this truth shape our thoughts, relationships, and choices today.';
+      'As we read "' + text.replace(/"/g, '') + '", we are called to let this truth shape our thoughts, relationships, and choices today.';
 
     var application = 'Take a quiet moment to ask the Holy Spirit how this verse applies to your current season. ' +
       'Is there a relationship that needs the light of this truth? A worry you can release? A step of obedience you can take? ' +
@@ -479,7 +479,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     p.className='today-study';
     var scriptureBlock = '<div class="today-study-block"><h4>\ud83d\udcd6 Scripture</h4><div class="today-reading"><strong>Today\u2019s Reading: '+esc(s.citation||'')+'</strong>';
     if(s.text){
-      scriptureBlock += '<p style="margin:10px 0 0;font-size:16px;line-height:1.55;font-style:italic">\"'+esc(s.text)+'\"</p>';
+      scriptureBlock += '<p style="margin:10px 0 0;font-size:16px;line-height:1.55;font-style:italic">"'+esc(s.text)+'"</p>';
     }
     scriptureBlock += '</div></div>';
     p.innerHTML = scriptureBlock +

@@ -4,27 +4,7 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome to our Circles</title>
-
-  <!-- Open Graph / Social Media Preview -->
-  <meta property="og:title" content="Welcome to our Circles">
-  <meta property="og:description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected.">
-  <meta property="og:image" content="https://rlccphil.github.io/circles/og-image.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Welcome to our Circles – Real Life Christian Communities">
-  <meta property="og:url" content="https://rlccphil.github.io/circles/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Circles – RLCC">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Welcome to our Circles">
-  <meta name="twitter:description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected.">
-  <meta name="twitter:image" content="https://rlccphil.github.io/circles/og-image.png">
-
-  <!-- Regular SEO description -->
-  <meta name="description" content="Find community, grow in faith, and walk together. Request to join a Circle, track attendance, and stay connected at Real Life Christian Communities.">
+  <title>Circles</title>
   <style>
     :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
@@ -68,7 +48,7 @@
 <div class="app">
   <header class="top">
     <div class="topline">
-      <div class="title" id="appTitle">Welcome to our Circles</div>
+      <div class="title" id="appTitle">Circle Request, Registration, and Attendance</div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="account" id="accountLabel">Choose a Circle to begin</div>
         <div class="nav-wrap">
@@ -101,7 +81,9 @@
           <h2>Today's Circle Study</h2>
           <span class="badge">Daily</span>
         </div>
-        <div id="todayStudyContent" class="today-empty">Loading today's study…</div>
+        <div id="todayStudyContent">
+          <iframe data-testid="embed-iframe" title="Daily Circle Study podcast" style="border-radius:12px" src="https://open.spotify.com/embed/show/2uNiOXopahquZlDHfJFHar?utm_source=generator&si=c6c7ec32fc4a41ca" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
       </div>
 
       <div class="card">
@@ -368,7 +350,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var parts=d.split('-');
     var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
     $('todayDate').textContent=date.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    loadTodayStudy();
+    /* loadTodayStudy(); -- replaced by the embedded podcast; re-enable to restore the written daily study */
   }
 
   async function loadTodayStudy(){
@@ -732,7 +714,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Welcome to our Circles';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

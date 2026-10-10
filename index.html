@@ -533,7 +533,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var p=$('circleCommunitiesPane');
     var active=state.communities.filter(function(c){return c.active;});
     var inactive=state.communities.filter(function(c){return !c.active;});
-    p.innerHTML='<div class="card"><h2>Communities</h2><div class="notice">Register Communities here. Active Communities will automatically appear in the Community Affiliation dropdown when registering or editing a Circle.</div><div class="grid"><div class="field"><label>Community Name *</label><input id="communityName" placeholder="e.g. New Community"></div></div><div class="actions"><button class="btn primary" onclick="saveCommunity()">Add Community</button></div></div><div class="card"><h3>Active Communities</h3><div id="activeCommunityList"></div></div>' +
+    p.innerHTML='<div class="card"><h2>Communities</h2><div class="notice">Register each Community and enter the leader email address that should receive new requests to join that Community. Active Communities will automatically appear in the Community dropdowns.</div><div class="grid"><div class="field"><label>Community Name *</label><input id="communityName" placeholder="e.g. New Community"></div><div class="field"><label>Community Leader Email</label><input id="communityLeaderEmail" type="email" placeholder="leader@example.com"><div class="required-note">New requests to join this Community will be emailed to this address.</div></div></div><div class="actions"><button class="btn primary" onclick="saveCommunity()">Add Community</button><button class="btn" onclick="newCommunity()">Clear</button></div></div><div class="card"><h3>Active Communities</h3><div id="activeCommunityList"></div></div>' +
       (inactive.length?'<div class="card"><h3>Inactive Communities</h3><div id="inactiveCommunityList"></div></div>':'');
     renderCommunityRows('activeCommunityList',active,true);
     if(inactive.length)renderCommunityRows('inactiveCommunityList',inactive,false);
@@ -542,12 +542,13 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var p=$(id);
     if(!list.length){p.innerHTML='<div class="empty">No Communities registered.</div>';return}
     p.innerHTML=list.map(function(c){
-      return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">Community ID: '+esc(c.id)+'</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCommunity(\''+esc(c.id)+'\')">Edit Community</button>'+(canDeactivate?'<button class="btn danger" onclick="deactivateCommunity(\''+esc(c.id)+'\')">Deactivate</button>':'')+'</div></div>';
+      return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">Community ID: '+esc(c.id)+'</div><div class="meta">Leader email: '+esc(c.leaderEmail||'Not configured')+'</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCommunity(\''+esc(c.id)+'\')">Edit Community</button>'+(canDeactivate?'<button class="btn danger" onclick="deactivateCommunity(\''+esc(c.id)+'\')">Deactivate</button>':'')+'</div></div>';
     }).join('');
   }
   function newCommunity(){
     state.communityBeingEdited=null;
     $('communityName').value='';
+    $('communityLeaderEmail').value='';
     var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
     if(b)b.textContent='Add Community';
   }
@@ -556,16 +557,19 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     if(!c)return;
     state.communityBeingEdited=c;
     $('communityName').value=c.name;
+    $('communityLeaderEmail').value=c.leaderEmail||'';
     var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
     if(b)b.textContent='Save Community';
     $('communityName').focus();
   }
   async function saveCommunity(){
     var name=$('communityName').value.trim();
+    var leaderEmail=$('communityLeaderEmail').value.trim();
     if(!name){toast('Please enter the Community name.');$('communityName').focus();return}
+    if(leaderEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leaderEmail)){toast('Please enter a valid Community Leader Email address, or leave it blank.');$('communityLeaderEmail').focus();return}
     busy(true);
     try{
-      var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,active:true});
+      var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,leaderEmail:leaderEmail,active:true});
       toast(r.message);
       await bootstrap();
       state.communityBeingEdited=null;

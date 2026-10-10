@@ -4,11 +4,11 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Circles</title>
+  <title>Welcome to Circles</title>
   <meta name="description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Real Life Christian Communities">
-  <meta property="og:title" content="Circles">
+  <meta property="og:title" content="Welcome to Circles">
   <meta property="og:description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
   <meta property="og:url" content="https://rlccphil.github.io/circles/">
   <meta property="og:image" content="https://rlccphil.github.io/circles/circles-image.jpg">
@@ -60,7 +60,7 @@
 <div class="app">
   <header class="top">
     <div class="topline">
-      <div class="title" id="appTitle">Circle Request, Registration, and Attendance</div>
+      <div class="title" id="appTitle">Welcome to Circles</div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="account" id="accountLabel">Choose a Circle to begin</div>
         <div class="nav-wrap">
@@ -137,6 +137,7 @@
         <div id="requestStatus" class="request-status"></div>
         <div class="notice">Please answer the items that apply to you. You do not need to complete every optional field.</div>
         <div class="grid">
+          <div class="field full"><label>What would you like to join? *</label><select id="rRequestType" onchange="onRequestTypeChange()"><option value="Circle" selected>A Circle</option><option value="Community">A Community</option></select></div>
           <div class="field"><label>Name *</label><input id="rName" placeholder="Your full name"></div>
           <div class="field"><label>Email *</label><input id="rEmail" type="email" placeholder="Your email address"></div>
           <div class="field"><label>Phone / Mobile</label><input id="rPhone" type="tel" placeholder="Optional"></div>
@@ -151,7 +152,7 @@
           <div class="field"><label>Preferred Meeting Day</label><select id="rDay"><option value="">No preference</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
           <div class="field"><label>Preferred Meeting Time</label><input id="rTime" type="time"></div>
           <div class="field"><label>Preferred Frequency</label><select id="rFrequency"></select></div>
-          <div class="field"><label>Community Affiliation</label><select id="rCommunity"></select></div>
+          <div class="field" id="requestCommunityField"><label id="requestCommunityLabel">Community Affiliation</label><select id="rCommunity"></select></div>
           <div class="field full"><label>Interests / Preferences</label><textarea id="rInterests" placeholder="What kinds of people, topics, activities, or experiences would you enjoy in a Circle?"></textarea></div>
           <div class="field full"><label>Why would you like to join a Circle?</label><textarea id="rWhy" placeholder="Tell us briefly what you are looking for."></textarea></div>
           <div class="field full"><label>Additional Notes</label><textarea id="rNotes" placeholder="Anything else you would like us to know?"></textarea></div>
@@ -709,26 +710,46 @@ function renderDashboardCharts(d){
 async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('statsCircle').value,$('statsFrom').value,$('statsTo').value),k=d.kpis;$('statsKpis').innerHTML=[['Attendance Rate',k.rate+'%'],['Events',k.events],['Members',k.members],['Present',k.present],['Late',k.late],['Absent',k.absent],['Marked',k.marked],['Circles',k.circles]].map(function(x){return '<div class="kpi"><small>'+x[0]+'</small><strong>'+x[1]+'</strong></div>'}).join('');$('trendList').innerHTML=d.trend.length?d.trend.map(function(t){return '<div class="trend-row"><div class="small">'+esc(formatTrendDate(t.dateIso))+'</div><div class="bar"><div class="fill" style="width:'+Math.min(100,t.rate)+'%"></div></div><div class="small" style="text-align:right;font-weight:800">'+t.rate+'%</div></div>'}).join(''):'<div class="empty">No attendance records in this range.</div>';$('statsTable').innerHTML=d.members.map(function(m){return '<tr><td>'+esc(m.name)+'</td><td>'+esc(m.circleName)+'</td><td>'+m.rate+'%</td><td>'+m.present+'</td><td>'+m.late+'</td><td>'+m.absent+'</td></tr>'}).join('')||'<tr><td colspan="6">No member data.</td></tr>'}catch(e){toast(e.message)}finally{busy(false)}}
   async function emailStats(){var to=prompt('Email report to:');if(!to)return;busy(true);try{var r=await server('apiEmailStats',$('statsCircle').value,$('statsFrom').value,$('statsTo').value,to);toast(r.message)}catch(e){toast(e.message)}finally{busy(false)}}
   function populateRequestForm(){
-    fillSelect('rCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'No specific Circle');
+    fillSelect('rCircle',state.circles.map(function(c){return {value:c.name,label:c.name}}),'No specific Circle');
     fillSelect('rCommunity',state.communityAffiliations.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rCircleType',state.circleTypes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rManner',state.meetingModes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rFrequency',state.frequencies.map(function(x){return {value:x,label:x}}),'No preference');
+    onRequestTypeChange();
+  }
+  function onRequestTypeChange(){
+    var type=$('rRequestType').value||'Circle';
+    $('submitRequestBtn').textContent=type==='Community'?'Request to Join a Community':'Request to Join a Circle';
+    var circleOnly=['rCircle','rCircleType','rManner','rDay','rTime','rFrequency'];
+    circleOnly.forEach(function(id){
+      var el=$(id);
+      if(el && el.parentElement)el.parentElement.style.display=type==='Circle'?'':'none';
+    });
+    $('requestCommunityLabel').textContent=type==='Community'?'Community to Join *':'Community Affiliation';
+    var community=$('rCommunity');
+    var previous=community.value;
+    fillSelect('rCommunity',state.communityAffiliations.map(function(x){return {value:x,label:x}}),type==='Community'?'Choose a Community':'No preference');
+    if(previous && state.communityAffiliations.indexOf(previous)!==-1)community.value=previous;
+    if(type==='Community' && !community.value)community.selectedIndex=0;
   }
   function clearCircleRequest(hideStatus){
     ['rName','rEmail','rPhone','rLocation','rTime','rCommunity','rInterests','rWhy','rNotes'].forEach(function(id){$(id).value=''});
     ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency'].forEach(function(id){$(id).selectedIndex=0});
+    $('rRequestType').value='Circle';
+    onRequestTypeChange();
     if(hideStatus!==false){$('requestStatus').classList.remove('show');$('requestStatus').textContent=''}
   }
   function showRequestSuccess(requestId){
-    $('requestStatus').innerHTML='<strong>Your request has been received!</strong><div>Thank you for reaching out. A Circle Leader will contact you as soon as possible.</div>'+(requestId?'<div class="small" style="margin-top:6px">Request ID: '+esc(requestId)+'</div>':'');
+    $('requestStatus').innerHTML='<strong>Your request has been received!</strong><div>Thank you for reaching out. The appropriate RLCC leader will contact you as soon as possible.</div>'+(requestId?'<div class="small" style="margin-top:6px">Request ID: '+esc(requestId)+'</div>':'');
     $('requestStatus').classList.add('show');
     $('requestStatus').scrollIntoView({behavior:'smooth',block:'center'});
   }
   async function submitCircleRequest(){
-    var request={name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
+    var requestType=$('rRequestType').value||'Circle';
+    var request={requestType:requestType,name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:requestType==='Circle'&&$('rCircle').value?$('rCircle').value:'',preferredCircleType:requestType==='Circle'?$('rCircleType').value:'',preferredManner:requestType==='Circle'?$('rManner').value:'',preferredMeetingDay:requestType==='Circle'?$('rDay').value:'',preferredMeetingTime:requestType==='Circle'?$('rTime').value:'',preferredFrequency:requestType==='Circle'?$('rFrequency').value:'',communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
     if(!request.name.trim()){toast('Please enter your name.');$('rName').focus();return}
     if(!request.email.trim()){toast('Please enter your email address.');$('rEmail').focus();return}
+    if(requestType==='Community'&&!request.communityAffiliation){toast('Please choose the Community you want to join.');$('rCommunity').focus();return}
     $('submitRequestBtn').disabled=true;
     try{
       var r=await server('apiSubmitCircleRequest',request);
@@ -832,7 +853,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent='Welcome to Circles';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

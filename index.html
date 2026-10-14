@@ -106,7 +106,7 @@
         <div class="request-intro">Other Circles features are available here so the main navigation can stay simple.</div>
       </div>
       <div class="quick-grid">
-        <button class="quick-link" onclick="showView('home')"><strong>➕ Join a Circle or Community</strong><span>Looking for a Circle to join? Send us your information.</span></button>
+        <button class="quick-link" onclick="showView('home')"><strong>➕ Join a Circle or Community</strong><span>Looking for a Circle or Community to join? Send us your information.</span></button>
         <button class="quick-link" onclick="showView('chat')"><strong>💬 Chat</strong><span>Open Circle conversations and request a chat space.</span></button>
         <button class="quick-link" onclick="showView('stats')"><strong>📊 Dashboard</strong><span>View attendance and Circle statistics.</span></button>
         <button class="quick-link" onclick="showView('circles')"><strong>⚙️ Circle Management</strong><span>Registration, members, and communities.</span></button>
@@ -117,15 +117,16 @@
       <div class="card">
         <h2>Join a Circle or Community</h2>
         <div class="request-intro">
-          Looking for a Circle to join? Tell us a little about yourself and the kind of Circle you are looking for. Your responses will help us connect you with a Circle that fits your life, interests, and preferences.
+          Looking for a Circle or Community to join? Tell us a little about yourself and what you are looking for. A Circle is a small group that meets closely together, while a Community is a larger gathering and can be a gentler first step if you are not yet ready for a Circle. Your responses will help us connect you with the right fit.
         </div>
       </div>
 
       <div class="card">
-        <h2>Request to Join a Circle</h2>
+        <h2>Request to Join a Circle or Community</h2>
         <div id="requestStatus" class="request-status"></div>
         <div class="notice">Please answer the items that apply to you. You do not need to complete every optional field.</div>
         <div class="grid">
+          <div class="field full"><label>I would like to join *</label><select id="rJoinType" onchange="onJoinTypeChange()"><option value="Circle">A Circle</option><option value="Community">A Community</option><option value="Either">Not sure yet</option></select><div class="small muted" style="margin-top:6px">Not ready for a Circle yet? You are welcome to start with a Community.</div></div>
           <div class="field"><label>Name *</label><input id="rName" placeholder="Your full name"></div>
           <div class="field"><label>Email *</label><input id="rEmail" type="email" placeholder="Your email address"></div>
           <div class="field"><label>Phone / Mobile</label><input id="rPhone" type="tel" placeholder="Optional"></div>
@@ -146,7 +147,7 @@
           <div class="field full"><label>Additional Notes</label><textarea id="rNotes" placeholder="Anything else you would like us to know?"></textarea></div>
         </div>
         <div class="required-note">* Required fields</div>
-        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Request to Join a Circle</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
+        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Submit Request</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
       </div>
     </section>
 
@@ -744,9 +745,13 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     fillSelect('rManner',state.meetingModes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rFrequency',state.frequencies.map(function(x){return {value:x,label:x}}),'No preference');
   }
+  function onJoinTypeChange(){
+    var community=$('rJoinType').value==='Community';
+    ['rCircle','rCircleType','rManner','rDay','rTime','rFrequency'].forEach(function(id){var f=$(id).parentNode;if(f)f.style.display=community?'none':''});
+  }
   function clearCircleRequest(hideStatus){
     ['rName','rEmail','rPhone','rLocation','rTime','rCommunity','rInterests','rWhy','rNotes'].forEach(function(id){$(id).value=''});
-    ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency'].forEach(function(id){$(id).selectedIndex=0});
+    ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency','rJoinType'].forEach(function(id){$(id).selectedIndex=0});onJoinTypeChange();
     if(hideStatus!==false){$('requestStatus').classList.remove('show');$('requestStatus').textContent=''}
   }
   function showRequestSuccess(requestId){
@@ -756,6 +761,9 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
   }
   async function submitCircleRequest(){
     var request={name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
+    var jt=$('rJoinType').value;request.requestType=jt;
+    if(jt==='Community'){request.preferredCircle='';request.preferredCircleType='';request.preferredManner='';request.preferredMeetingDay='';request.preferredMeetingTime='';request.preferredFrequency=''}
+    request.additionalNotes='Looking to join: '+(jt==='Either'?'Circle or Community (not sure yet)':jt)+(request.additionalNotes?'\n\n'+request.additionalNotes:'');
     if(!request.name.trim()){toast('Please enter your name.');$('rName').focus();return}
     if(!request.email.trim()){toast('Please enter your email address.');$('rEmail').focus();return}
     $('submitRequestBtn').disabled=true;

@@ -54,6 +54,7 @@
         <div class="nav-wrap">
           <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu()">☰</button>
           <div class="menu-panel" id="menuPanel">
+            <button id="navHome" onclick="showView('home')">Join a Circle or Community</button>
             <button id="navToday" onclick="showView('today')">Today</button>
             <button id="navCircles" onclick="showView('circles')">My Circle</button>
             <button id="navStudy" onclick="showView('study')">Study</button>
@@ -105,7 +106,7 @@
         <div class="request-intro">Other Circles features are available here so the main navigation can stay simple.</div>
       </div>
       <div class="quick-grid">
-        <button class="quick-link" onclick="showView('home')"><strong>➕ Request to Join a Circle</strong><span>Looking for a Circle to join? Send us your information.</span></button>
+        <button class="quick-link" onclick="showView('home')"><strong>➕ Join a Circle or Community</strong><span>Looking for a Circle to join? Send us your information.</span></button>
         <button class="quick-link" onclick="showView('chat')"><strong>💬 Chat</strong><span>Open Circle conversations and request a chat space.</span></button>
         <button class="quick-link" onclick="showView('stats')"><strong>📊 Dashboard</strong><span>View attendance and Circle statistics.</span></button>
         <button class="quick-link" onclick="showView('circles')"><strong>⚙️ Circle Management</strong><span>Registration, members, and communities.</span></button>
@@ -114,7 +115,7 @@
 
     <section id="homeView" class="view">
       <div class="card">
-        <h2>Find a Circle</h2>
+        <h2>Join a Circle or Community</h2>
         <div class="request-intro">
           Looking for a Circle to join? Tell us a little about yourself and the kind of Circle you are looking for. Your responses will help us connect you with a Circle that fits your life, interests, and preferences.
         </div>

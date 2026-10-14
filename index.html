@@ -4,19 +4,7 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome to Circles</title>
-  <meta name="description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Real Life Christian Communities">
-  <meta property="og:title" content="Welcome to Circles">
-  <meta property="og:description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
-  <meta property="og:url" content="https://rlccphil.github.io/circles/">
-  <meta property="og:image" content="https://rlccphil.github.io/circles/circles-image.jpg">
-  <meta property="og:image:width" content="1168">
-  <meta property="og:image:height" content="784">
-  <meta property="og:image:alt" content="Welcome to our Circles – Real Life Christian Communities">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://rlccphil.github.io/circles/circles-image.jpg">
+  <title>Circles</title>
   <style>
     :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
@@ -60,13 +48,12 @@
 <div class="app">
   <header class="top">
     <div class="topline">
-      <div class="title" id="appTitle">Welcome to Circles</div>
+      <div class="title" id="appTitle">Circle Request, Registration, and Attendance</div>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="account" id="accountLabel">Choose a Circle to begin</div>
         <div class="nav-wrap">
           <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu()">☰</button>
           <div class="menu-panel" id="menuPanel">
-            <button id="navHome" onclick="showView('home')">Join a Circle or Community</button>
             <button id="navToday" onclick="showView('today')">Today</button>
             <button id="navCircles" onclick="showView('circles')">My Circle</button>
             <button id="navStudy" onclick="showView('study')">Study</button>
@@ -118,7 +105,7 @@
         <div class="request-intro">Other Circles features are available here so the main navigation can stay simple.</div>
       </div>
       <div class="quick-grid">
-        <button class="quick-link" onclick="showView('home')"><strong>➕ Join a Circle or Community</strong><span>Tell us which kind of group you would like to join.</span></button>
+        <button class="quick-link" onclick="showView('home')"><strong>➕ Request to Join a Circle</strong><span>Looking for a Circle to join? Send us your information.</span></button>
         <button class="quick-link" onclick="showView('chat')"><strong>💬 Chat</strong><span>Open Circle conversations and request a chat space.</span></button>
         <button class="quick-link" onclick="showView('stats')"><strong>📊 Dashboard</strong><span>View attendance and Circle statistics.</span></button>
         <button class="quick-link" onclick="showView('circles')"><strong>⚙️ Circle Management</strong><span>Registration, members, and communities.</span></button>
@@ -127,11 +114,17 @@
 
     <section id="homeView" class="view">
       <div class="card">
-        <h2>Join a Circle or Community</h2>
+        <h2>Find a Circle</h2>
+        <div class="request-intro">
+          Looking for a Circle to join? Tell us a little about yourself and the kind of Circle you are looking for. Your responses will help us connect you with a Circle that fits your life, interests, and preferences.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Request to Join a Circle</h2>
         <div id="requestStatus" class="request-status"></div>
-        <div class="notice">Choose whether you want to join a Community or a Circle. Please answer the items that apply to you; most details are optional.</div>
+        <div class="notice">Please answer the items that apply to you. You do not need to complete every optional field.</div>
         <div class="grid">
-          <div class="field full"><label>What would you like to join? *</label><select id="rRequestType" onchange="toggleRequestTypeFields()"><option value="Circle">A Circle</option><option value="Community">A Community</option></select></div>
           <div class="field"><label>Name *</label><input id="rName" placeholder="Your full name"></div>
           <div class="field"><label>Email *</label><input id="rEmail" type="email" placeholder="Your email address"></div>
           <div class="field"><label>Phone / Mobile</label><input id="rPhone" type="tel" placeholder="Optional"></div>
@@ -140,19 +133,19 @@
           <div class="field"><label>Marital Status</label><select id="rMarital"><option value="">Choose if applicable</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option><option>Prefer not to say</option></select></div>
           <div class="field"><label>Life Stage</label><select id="rLifeStage"><option value="">Choose if applicable</option><option>Student</option><option>Young Professional</option><option>Young Couple</option><option>Parent / Family</option><option>Adult</option><option>Senior Adult</option><option>Other</option></select></div>
           <div class="field"><label>Location / Area</label><input id="rLocation" placeholder="e.g. Pacita, San Pedro"></div>
-          <div class="field circle-request-field"><label>Preferred Circle</label><select id="rCircle"></select></div>
-          <div class="field circle-request-field"><label>Preferred Circle Type</label><select id="rCircleType"></select></div>
-          <div class="field circle-request-field"><label>Preferred Manner of Meeting</label><select id="rManner"></select></div>
-          <div class="field circle-request-field"><label>Preferred Meeting Day</label><select id="rDay"><option value="">No preference</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
-          <div class="field circle-request-field"><label>Preferred Meeting Time</label><input id="rTime" type="time"></div>
-          <div class="field circle-request-field"><label>Preferred Frequency</label><select id="rFrequency"></select></div>
-          <div class="field full" id="rCommunityField"><label id="rCommunityLabel">Community Affiliation (optional)</label><select id="rCommunity"></select></div>
+          <div class="field"><label>Preferred Circle</label><select id="rCircle"></select></div>
+          <div class="field"><label>Preferred Circle Type</label><select id="rCircleType"></select></div>
+          <div class="field"><label>Preferred Manner of Meeting</label><select id="rManner"></select></div>
+          <div class="field"><label>Preferred Meeting Day</label><select id="rDay"><option value="">No preference</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+          <div class="field"><label>Preferred Meeting Time</label><input id="rTime" type="time"></div>
+          <div class="field"><label>Preferred Frequency</label><select id="rFrequency"></select></div>
+          <div class="field"><label>Community Affiliation</label><select id="rCommunity"></select></div>
           <div class="field full"><label>Interests / Preferences</label><textarea id="rInterests" placeholder="What kinds of people, topics, activities, or experiences would you enjoy in a Circle?"></textarea></div>
           <div class="field full"><label>Why would you like to join a Circle?</label><textarea id="rWhy" placeholder="Tell us briefly what you are looking for."></textarea></div>
           <div class="field full"><label>Additional Notes</label><textarea id="rNotes" placeholder="Anything else you would like us to know?"></textarea></div>
         </div>
         <div class="required-note">* Required fields</div>
-        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Submit Request</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
+        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Request to Join a Circle</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
       </div>
     </section>
 
@@ -353,7 +346,7 @@
 document.addEventListener('click',function(e){var wrap=document.querySelector('.nav-wrap');if(wrap && !wrap.contains(e.target))closeMenu();});
   function busy(on){document.body.style.cursor=on?'wait':'default';$('saveAttendanceBtn').disabled=on}
   function fillSelect(id,items,placeholder){var s=$(id);s.innerHTML='';if(placeholder){var o=document.createElement('option');o.value='';o.textContent=placeholder;s.appendChild(o)}items.forEach(function(x){var o=document.createElement('option');o.value=x.value;o.textContent=x.label;s.appendChild(o)})}
-  function toggleMenu(){var p=$('menuPanel');var b=$('menuBtn');var open=!p.classList.contains('open');p.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open))} function closeMenu(){var p=$('menuPanel');var b=$('menuBtn');if(p){p.classList.remove('open')}if(b){b.setAttribute('aria-expanded','false')}} function showView(view){['home','today','attendance','circles','stats','study','chat','more'].forEach(function(v){var el=$(v+'View');if(el)el.classList.toggle('active',v===view);var nav=$('nav'+v.charAt(0).toUpperCase()+v.slice(1));if(nav)nav.classList.toggle('active',v===view)});closeMenu();if(view==='today')renderToday();if(view==='circles')circleMode('list');if(view==='attendance')loadAttendance(true);if(view==='stats'){loadStats();showDashboardCharts()}if(view==='study')studyMode('list');if(view==='chat')chatMode('list')}
+  function toggleMenu(){var p=$('menuPanel');var b=$('menuBtn');var open=!p.classList.contains('open');p.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open))} function closeMenu(){var p=$('menuPanel');var b=$('menuBtn');if(p){p.classList.remove('open')}if(b){b.setAttribute('aria-expanded','false')}} function showView(view){['today','home','attendance','circles','stats','study','chat','more'].forEach(function(v){var el=$(v+'View');if(el)el.classList.toggle('active',v===view);var nav=$('nav'+v.charAt(0).toUpperCase()+v.slice(1));if(nav)nav.classList.toggle('active',v===view)});closeMenu();if(view==='today')renderToday();if(view==='circles')circleMode('list');if(view==='attendance')loadAttendance(true);if(view==='stats'){loadStats();showDashboardCharts()}if(view==='study')studyMode('list');if(view==='chat')chatMode('list')}
   // ===== DAILY DISCUSSION QUESTIONS =====
   // Add one entry per devotion date ('YYYY-MM-DD'). The app shows today's entry automatically.
   // If a date has no entry, the most recent entry from the last 3 days is shown (covers weekends).
@@ -397,45 +390,85 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
         "How does your hope in God change the way you work, serve, rest, and relate to people today?",
         "What is one ordinary thing you will do this week with the prayer, \"Lord, I trust You with tomorrow, so help me be fully present with You today\"?"
       ]
-    },
-    "2026-10-12":{
-      title:"The Story of God's Faithfulness - Day 1: God Is Already There (Genesis 45:7)",
+    }
+    ,"2026-10-12":{
+      title:"The Story of Joseph - Day 1: God Sends Help Before You Know You Need It (Psalm 105:16-17)",
       questions:[
-        "Joseph could only see God's hand ahead of him after many years. Where in your life does something feel like a detour or an unnecessary delay?",
-        "How might you face it differently if you believed God may already be doing something there that you cannot yet see?",
-        "What is one way you can trust God this week without needing to understand everything, and how can your Circle pray for you?"
+        "God sent Joseph ahead before anyone knew a famine was coming. Looking back, where can you see that God was already preparing help for a hard season you did not see coming?",
+        "When something painful happens, it is easy to wonder where God is. What helps you trust that He is at work even when you cannot see what He is doing?",
+        "Is there a season right now where you need a reminder that God has already sent help ahead? How can your Circle pray for you?"
       ]
     },
     "2026-10-13":{
-      title:"The Story of God's Faithfulness - Day 2: The Waiting Is Not Wasted (Psalm 105:19)",
+      title:"The Story of Joseph - Day 2: God Sent Me Ahead of You (Genesis 45:4-8)",
       questions:[
-        "Joseph waited through slavery, injustice, and prison, yet God was at work in him the whole time. What are you waiting for right now?",
-        "Instead of only asking “When will this end?”, what might God be forming in you while you wait?",
-        "What is one way you can stay faithful in this season of waiting, and how can your Circle encourage you?"
+        "Joseph told his brothers, \"it was not you who sent me here, but God.\" How does seeing God's hand help someone move toward forgiveness without pretending the hurt never happened?",
+        "Where do you find it hard to believe that God can work through something that someone else meant for harm?",
+        "Is there a person you need to speak a word of grace to this week? What would a first step look like?"
       ]
     },
     "2026-10-14":{
-      title:"The Story of God's Faithfulness - Day 3: Trust His Timing (Ecclesiastes 3:1)",
+      title:"The Story of Joseph - Day 3: Refined in the Waiting (Psalm 105:18-19)",
       questions:[
-        "We often want to control the timetable. Where are you feeling impatient with God's timing?",
-        "Joseph could not decide when his imprisonment would end, but he could remain faithful where God had placed him. What does faithfulness look like in your current season?",
-        "What would it look like to pray, “Lord, I trust Your timing more than my timetable,” about something specific this week?"
+        "Joseph waited at least thirteen years between his dream and its fulfillment. What do you tend to feel when God's timing is slower than yours?",
+        "The word \"proved\" carries the picture of gold refined in a furnace. What has a difficult season taught you that an easy season could not?",
+        "What is one way you can be faithful where you are right now instead of wishing you were somewhere else? How can your Circle encourage you?"
       ]
     },
     "2026-10-15":{
-      title:"The Story of God's Faithfulness - Day 4: You May Not Understand It Yet (Isaiah 55:8)",
+      title:"The Story of Joseph - Day 4: Learning Before Leading (Psalm 105:20-22)",
       questions:[
-        "The pit, slavery, and prison did not make sense to Joseph at the time. What are you still asking God “Why?” about?",
-        "How can you hold on to what you know about God's character when you cannot understand His ways?",
-        "The next time you catch yourself asking “Why?”, what would trusting God look like in that moment?"
+        "Joseph was prepared in the pit, the prison, and the palace before he taught anyone wisdom. Why do you think God so often makes us learners before He makes us leaders?",
+        "Can you think of a time when you only understood God's way after looking back? What did hindsight show you?",
+        "Who has God placed around you that you could encourage or teach from what He has taught you? What small step could you take this week?"
       ]
     },
     "2026-10-16":{
-      title:"The Story of God's Faithfulness - Day 5: Remember and Worship (Psalm 105:5)",
+      title:"The Story of Joseph - Day 5: Remembering Makes Us Worshipful (Psalm 105:1-6)",
       questions:[
-        "Remembering God's faithfulness changes how we face today. What is one way God has been faithful to you that you want to remember?",
-        "How does remembering what God has done help you face a worry or uncertainty you have right now?",
-        "Share three ways God has been faithful to you, and take a moment to thank Him together as a Circle."
+        "Psalm 105 retells Joseph's story so that God's people would worship. Which story of God's faithfulness in your own life do you most need to retell?",
+        "How does remembering what God has done change the way you pray or sing when circumstances are still hard?",
+        "Who could you tell about God's faithfulness this week, and how might your Circle cheer you on?"
+      ]
+    }
+    ,"2026-10-19":{
+      title:"The Story of Joseph - Day 1: When Jealousy Takes Root (Genesis 37:3-11)",
+      questions:[
+        "Jealousy often begins quietly, with a simple comparison. Where have you noticed comparison creeping into how you see others, even within the church?",
+        "Joseph's brothers saw his blessing as a threat. What helps you celebrate what God is doing in someone else's life?",
+        "Who could you pray for and encourage this week? How can your Circle help you practice celebrating others?"
+      ]
+    },
+    "2026-10-20":{
+      title:"The Story of Joseph - Day 2: Rejected by People, Not Abandoned by God (Acts 7:9-10)",
+      questions:[
+        "Stephen reminds us that Joseph's brothers sold him, but God was with him. When you have felt rejected, what truth about God's presence has helped you most?",
+        "Why is it so easy to treat other people's approval as proof of God's favor?",
+        "How can we stay humble enough to receive fair correction while still trusting that rejection does not mean God has left us?"
+      ]
+    },
+    "2026-10-21":{
+      title:"The Story of Joseph - Day 3: When the Person You Rejected Becomes Your Help (Genesis 42:1-8)",
+      questions:[
+        "The brothers stood before the one they had rejected, not knowing he was their help. When has God provided for you through someone you did not expect?",
+        "Joseph could have answered his brothers with revenge. What does it look like to extend grace while still keeping healthy boundaries?",
+        "Is there someone you have overlooked who may have something good to offer? What small step could you take this week?"
+      ]
+    },
+    "2026-10-22":{
+      title:"The Story of Joseph - Day 4: God's Purposes Are Bigger Than Our Story (Genesis 45:4-8)",
+      questions:[
+        "Joseph could see God's purpose without excusing what his brothers did. How can we hold both the reality of the hurt and trust in God's bigger plan?",
+        "We often measure our lives by comfort or success. What might change if you asked how God wants to use your story to serve others?",
+        "What is one gift, experience, or opportunity God has entrusted to you that could bless someone this week?"
+      ]
+    },
+    "2026-10-23":{
+      title:"The Story of Joseph - Day 5: Rejection Is Not the Final Word (Acts 7:51-60)",
+      questions:[
+        "Stephen faced rejection and yet saw Jesus at God's right hand. What does his example teach you about staying faithful when following Jesus is costly?",
+        "Stephen prayed for those who were hurting him. What makes it hard to release bitterness, and how does Jesus' mercy toward us help?",
+        "How does the resurrection of Jesus change the way you understand rejection or apparent defeat? How can your Circle pray for you?"
       ]
     }
   };
@@ -526,7 +559,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var p=$('circleCommunitiesPane');
     var active=state.communities.filter(function(c){return c.active;});
     var inactive=state.communities.filter(function(c){return !c.active;});
-    p.innerHTML='<div class="card"><h2>Communities</h2><div class="notice">Register each Community and enter the leader email address that should receive new requests to join that Community. Active Communities will automatically appear in the Community dropdowns.</div><div class="grid"><div class="field"><label>Community Name *</label><input id="communityName" placeholder="e.g. New Community"></div><div class="field"><label>Community Leader Email</label><input id="communityLeaderEmail" type="email" placeholder="leader@example.com"><div class="required-note">New requests to join this Community will be emailed to this address.</div></div></div><div class="actions"><button class="btn primary" onclick="saveCommunity()">Add Community</button><button class="btn" onclick="newCommunity()">Clear</button></div></div><div class="card"><h3>Active Communities</h3><div id="activeCommunityList"></div></div>' +
+    p.innerHTML='<div class="card"><h2>Communities</h2><div class="notice">Register Communities here. Active Communities will automatically appear in the Community Affiliation dropdown when registering or editing a Circle.</div><div class="grid"><div class="field"><label>Community Name *</label><input id="communityName" placeholder="e.g. New Community"></div></div><div class="actions"><button class="btn primary" onclick="saveCommunity()">Add Community</button></div></div><div class="card"><h3>Active Communities</h3><div id="activeCommunityList"></div></div>' +
       (inactive.length?'<div class="card"><h3>Inactive Communities</h3><div id="inactiveCommunityList"></div></div>':'');
     renderCommunityRows('activeCommunityList',active,true);
     if(inactive.length)renderCommunityRows('inactiveCommunityList',inactive,false);
@@ -535,13 +568,12 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var p=$(id);
     if(!list.length){p.innerHTML='<div class="empty">No Communities registered.</div>';return}
     p.innerHTML=list.map(function(c){
-      return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">Community ID: '+esc(c.id)+'</div><div class="meta">Leader email: '+esc(c.leaderEmail||'Not configured')+'</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCommunity(\''+esc(c.id)+'\')">Edit Community</button>'+(canDeactivate?'<button class="btn danger" onclick="deactivateCommunity(\''+esc(c.id)+'\')">Deactivate</button>':'')+'</div></div>';
+      return '<div class="circle-item"><div><div class="circle-name">'+esc(c.name)+'</div><div class="meta">Community ID: '+esc(c.id)+'</div></div><div class="circle-actions"><button class="btn secondary" onclick="editCommunity(\''+esc(c.id)+'\')">Edit Community</button>'+(canDeactivate?'<button class="btn danger" onclick="deactivateCommunity(\''+esc(c.id)+'\')">Deactivate</button>':'')+'</div></div>';
     }).join('');
   }
   function newCommunity(){
     state.communityBeingEdited=null;
     $('communityName').value='';
-    $('communityLeaderEmail').value='';
     var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
     if(b)b.textContent='Add Community';
   }
@@ -550,19 +582,16 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     if(!c)return;
     state.communityBeingEdited=c;
     $('communityName').value=c.name;
-    $('communityLeaderEmail').value=c.leaderEmail||'';
     var b=document.querySelector('#circleCommunitiesPane .actions .btn.primary');
     if(b)b.textContent='Save Community';
     $('communityName').focus();
   }
   async function saveCommunity(){
     var name=$('communityName').value.trim();
-    var leaderEmail=$('communityLeaderEmail').value.trim();
     if(!name){toast('Please enter the Community name.');$('communityName').focus();return}
-    if(leaderEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leaderEmail)){toast('Please enter a valid Community Leader Email address, or leave it blank.');$('communityLeaderEmail').focus();return}
     busy(true);
     try{
-      var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,leaderEmail:leaderEmail,active:true});
+      var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,active:true});
       toast(r.message);
       await bootstrap();
       state.communityBeingEdited=null;
@@ -709,42 +738,30 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
   async function emailStats(){var to=prompt('Email report to:');if(!to)return;busy(true);try{var r=await server('apiEmailStats',$('statsCircle').value,$('statsFrom').value,$('statsTo').value,to);toast(r.message)}catch(e){toast(e.message)}finally{busy(false)}}
   function populateRequestForm(){
     fillSelect('rCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'No specific Circle');
-    fillSelect('rCommunity',state.communityAffiliations.map(function(x){return {value:x,label:x}}),'Choose a Community');
+    fillSelect('rCommunity',state.communityAffiliations.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rCircleType',state.circleTypes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rManner',state.meetingModes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rFrequency',state.frequencies.map(function(x){return {value:x,label:x}}),'No preference');
-    toggleRequestTypeFields();
-  }
-  function toggleRequestTypeFields(){
-    var type=$('rRequestType').value;
-    document.querySelectorAll('.circle-request-field').forEach(function(el){el.style.display=type==='Community'?'none':'';});
-    $('rCommunityLabel').textContent=type==='Community'?'Community you want to join *':'Community Affiliation (optional)';
-    $('submitRequestBtn').textContent=type==='Community'?'Request to Join a Community':'Request to Join a Circle';
   }
   function clearCircleRequest(hideStatus){
     ['rName','rEmail','rPhone','rLocation','rTime','rCommunity','rInterests','rWhy','rNotes'].forEach(function(id){$(id).value=''});
     ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency'].forEach(function(id){$(id).selectedIndex=0});
-    $('rRequestType').value='Circle';
-    toggleRequestTypeFields();
     if(hideStatus!==false){$('requestStatus').classList.remove('show');$('requestStatus').textContent=''}
   }
-  function showRequestSuccess(requestId,requestType){
-    var contactText=requestType==='Community'?'Thank you for reaching out. Someone from the RLCC team will contact you about joining the Community.':'Thank you for reaching out. A Circle Leader will contact you as soon as possible.';
-    $('requestStatus').innerHTML='<strong>Your request has been received!</strong><div>'+contactText+'</div>'+(requestId?'<div class="small" style="margin-top:6px">Request ID: '+esc(requestId)+'</div>':'');
+  function showRequestSuccess(requestId){
+    $('requestStatus').innerHTML='<strong>Your request has been received!</strong><div>Thank you for reaching out. A Circle Leader will contact you as soon as possible.</div>'+(requestId?'<div class="small" style="margin-top:6px">Request ID: '+esc(requestId)+'</div>':'');
     $('requestStatus').classList.add('show');
     $('requestStatus').scrollIntoView({behavior:'smooth',block:'center'});
   }
   async function submitCircleRequest(){
-    var request={requestType:$('rRequestType').value,name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
+    var request={name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
     if(!request.name.trim()){toast('Please enter your name.');$('rName').focus();return}
     if(!request.email.trim()){toast('Please enter your email address.');$('rEmail').focus();return}
-    if(request.requestType==='Community'&&!request.communityAffiliation){toast('Please choose the Community you want to join.');$('rCommunity').focus();return}
     $('submitRequestBtn').disabled=true;
     try{
       var r=await server('apiSubmitCircleRequest',request);
-      var submittedType=request.requestType;
       clearCircleRequest(false);
-      showRequestSuccess(r.requestId,submittedType);
+      showRequestSuccess(r.requestId);
     }catch(e){toast(e.message)}
     finally{$('submitRequestBtn').disabled=false}
   }
@@ -843,7 +860,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent='Welcome to Circles';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('home')}catch(e){toast(e.message||'The app could not load.')}}
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

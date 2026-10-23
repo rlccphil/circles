@@ -4,6 +4,8 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
   <title>Circles</title>
   <meta name="description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
   <meta property="og:type" content="website">
@@ -533,7 +535,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var id=$('chatCreateCircle').value,pin=$('chatCreatePin').value.trim();
     if(!id){toast('Please choose a Circle.');return}
     busy(true);
-    try{var r=await server('apiCreateCircleChat',id,pin);toast(r.message);await bootstrap();chatMode('admin')}catch(e){toast(e.message)}finally{busy(false)}
+    try{var r=await server('apiCreateCircleChat',id,pin);toast(r.message);await bootstrap({silent:true,light:true});chatMode('admin')}catch(e){toast(e.message)}finally{busy(false)}
   }
 
   function renderCommunities(){
@@ -574,7 +576,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     try{
       var r=await server('apiSaveCommunity',{id:state.communityBeingEdited&&state.communityBeingEdited.id||'',name:name,active:true});
       toast(r.message);
-      await bootstrap();
+      await bootstrap({silent:true,light:true});
       state.communityBeingEdited=null;
       circleMode('communities');
       $('communityName').focus();
@@ -587,7 +589,7 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     try{
       var r=await server('apiDeactivateCommunity',id);
       toast(r.message);
-      await bootstrap();
+      await bootstrap({silent:true,light:true});
       circleMode('communities');
     }catch(e){toast(e.message)}
     finally{busy(false)}
@@ -599,8 +601,8 @@ function renderCircleEditor(){var c=state.circleBeingEdited||{};$('circleEditPan
   function removeNewCircleMember(i){state.newCircleMembers.splice(i,1);renderNewCircleMembers()}
   function renderNewCircleMembers(){var p=$('newCircleMembersList');if(!p)return;p.innerHTML=state.newCircleMembers.map(function(m,i){return '<div class="email-member-row"><input value="'+esc(m.name)+'" oninput="state.newCircleMembers['+i+'].name=this.value" placeholder="Member name"><input class="email-field" type="email" value="'+esc(m.email||'')+'" oninput="state.newCircleMembers['+i+'].email=this.value" placeholder="Email (optional)"><button class="remove remove-email-member" onclick="removeNewCircleMember('+i+')">×</button></div>'}).join('')}
   async function editCircle(id){busy(true);try{state.circleBeingEdited=await server('apiGetCircle',id);state.selectedCircleId=id;circleMode('edit')}catch(e){toast(e.message)}finally{busy(false)}}
-  async function saveCircle(){var isNew=!(state.circleBeingEdited&&state.circleBeingEdited.id);var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,leaderEmail:$('cLeaderEmail')?$('cLeaderEmail').value:'',meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};if(isNew)c.members=state.newCircleMembers.filter(function(m){return m.name&&m.name.trim()});busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap();state.selectedCircleId=r.circleId;circleMode('list');if(isNew)showTrainingNotice()}catch(e){toast(e.message)}finally{busy(false)}}
-  async function deactivateCircle(){if(!state.circleBeingEdited)return;if(!confirm('Deactivate this Circle? It will no longer appear in the normal Circle list.'))return;busy(true);try{var r=await server('apiDeactivateCircle',state.circleBeingEdited.id);toast(r.message);await bootstrap();circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function saveCircle(){var isNew=!(state.circleBeingEdited&&state.circleBeingEdited.id);var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,leaderEmail:$('cLeaderEmail')?$('cLeaderEmail').value:'',meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};if(isNew)c.members=state.newCircleMembers.filter(function(m){return m.name&&m.name.trim()});busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap({silent:true,light:true});state.selectedCircleId=r.circleId;circleMode('list');if(isNew)showTrainingNotice()}catch(e){toast(e.message)}finally{busy(false)}}
+  async function deactivateCircle(){if(!state.circleBeingEdited)return;if(!confirm('Deactivate this Circle? It will no longer appear in the normal Circle list.'))return;busy(true);try{var r=await server('apiDeactivateCircle',state.circleBeingEdited.id);toast(r.message);await bootstrap({silent:true,light:true});circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
   async function loadMembersEditor(id){
     var circles=state.circles||[];
     if(!circles.length){$('circleMembersPane').innerHTML='<div class="card empty">Register a Circle first.</div>';return}
@@ -769,11 +771,11 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
   async function saveStudyResource(){
     var r={title:$('resourceTitle').value.trim(),category:$('resourceCategory').value.trim(),description:$('resourceDescription').value.trim(),url:$('resourceUrl').value.trim(),sortOrder:$('resourceSortOrder').value,pin:$('resourcePin').value.trim()};
     if(!r.title){toast('Please enter a title.');return}if(!r.url){toast('Please enter the resource URL.');return}
-    try{var x=await server('apiSaveStudyResource',r);toast(x.message);await bootstrap();studyMode('add')}catch(e){toast(e.message)}
+    try{var x=await server('apiSaveStudyResource',r);toast(x.message);await bootstrap({silent:true,light:true});studyMode('add')}catch(e){toast(e.message)}
   }
   async function deleteStudyResource(id){
     if(!confirm('Delete this study resource?'))return;
-    try{var pin=prompt('Enter the Resource Admin PIN if one is configured.','')||'';var x=await server('apiDeleteStudyResource',id,pin);toast(x.message);await bootstrap();studyMode('add')}catch(e){toast(e.message)}
+    try{var pin=prompt('Enter the Resource Admin PIN if one is configured.','')||'';var x=await server('apiDeleteStudyResource',id,pin);toast(x.message);await bootstrap({silent:true,light:true});studyMode('add')}catch(e){toast(e.message)}
   }
 
   function renderStudyResources(){
@@ -840,11 +842,29 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     var r={circleId:chatRequestCircleId,name:$('chatReqName').value.trim(),email:$('chatReqEmail').value.trim(),message:$('chatReqMessage').value.trim()};
     if(!r.name){toast('Please enter your name.');return}if(!r.email){toast('Please enter your email address.');return}
     $('submitChatRequestBtn').disabled=true;
-    try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
+    try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap({silent:true,light:true});renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
-  bootstrap();
+var BOOT_CACHE_KEY='circlesBootCacheV1';
+function readBootCache(){try{var raw=localStorage.getItem(BOOT_CACHE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
+function writeBootCache(o){try{localStorage.setItem(BOOT_CACHE_KEY,JSON.stringify(o))}catch(e){}}
+function applyBootstrap(d,chatStatuses,counts){state.settings=d.settings||{};state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();if(counts)state.memberCounts=counts}
+async function bootstrap(opts){
+  opts=opts||{};
+  try{
+    var calls=[server('apiGetBootstrap'),server('apiGetChatRequestStatuses'),opts.light?Promise.resolve(null):server('apiGetCircleMemberCounts').catch(function(){return {}})];
+    var r=await Promise.all(calls);
+    var d=r[0];
+    if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');
+    var chat=r[1]||{},counts=r[2];
+    var prev=readBootCache();
+    writeBootCache({d:d,chat:chat,counts:counts||(prev&&prev.counts)||state.memberCounts||{}});
+    if(opts.background&&prev&&JSON.stringify([prev.d,prev.chat])===JSON.stringify([d,chat])){if(counts)state.memberCounts=counts;return}
+    applyBootstrap(d,chat,counts);
+    if(!opts.silent)showView('today');
+  }catch(e){if(!opts.background)toast(e.message||'The app could not load.')}
+}
+  (function startApp(){var c=readBootCache();if(c&&c.d&&typeof c.d==='object'){try{applyBootstrap(c.d,c.chat||{},c.counts||{});showView('today');bootstrap({background:true,silent:true});return}catch(e){}}bootstrap()})();
 </script>
 </body>
 </html>

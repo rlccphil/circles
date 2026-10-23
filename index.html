@@ -5,6 +5,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Circles</title>
+  <meta name="description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Real Life Christian Communities">
+  <meta property="og:title" content="Circles">
+  <meta property="og:description" content="Circle request, registration, and attendance for Real Life Christian Communities. Listen, reflect on God's Word, and prepare to share with your Circle.">
+  <meta property="og:url" content="https://rlccphil.github.io/circles/">
+  <meta property="og:image" content="https://rlccphil.github.io/circles/circles-image.jpg">
+  <meta property="og:image:width" content="1168">
+  <meta property="og:image:height" content="784">
+  <meta property="og:image:alt" content="Welcome to our Circles – Real Life Christian Communities">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://rlccphil.github.io/circles/circles-image.jpg">
   <style>
     :root{--bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#dbe2ea;--accent:#365233;--accent2:#1f6b3b;--soft:#edf5ed;--danger:#b42318;--warn:#a15c00;--shadow:0 4px 18px rgba(15,23,42,.06)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(160deg,#f1f6f1 0%,#f6f7f8 48%,#eef5ef 100%);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--text);min-height:100%}
@@ -54,7 +66,6 @@
         <div class="nav-wrap">
           <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu()">☰</button>
           <div class="menu-panel" id="menuPanel">
-            <button id="navHome" onclick="showView('home')">Join a Circle or Community</button>
             <button id="navToday" onclick="showView('today')">Today</button>
             <button id="navCircles" onclick="showView('circles')">My Circle</button>
             <button id="navStudy" onclick="showView('study')">Study</button>
@@ -106,7 +117,7 @@
         <div class="request-intro">Other Circles features are available here so the main navigation can stay simple.</div>
       </div>
       <div class="quick-grid">
-        <button class="quick-link" onclick="showView('home')"><strong>➕ Join a Circle or Community</strong><span>Looking for a Circle or Community to join? Send us your information.</span></button>
+        <button class="quick-link" onclick="showView('home')"><strong>➕ Request to Join a Circle</strong><span>Looking for a Circle to join? Send us your information.</span></button>
         <button class="quick-link" onclick="showView('chat')"><strong>💬 Chat</strong><span>Open Circle conversations and request a chat space.</span></button>
         <button class="quick-link" onclick="showView('stats')"><strong>📊 Dashboard</strong><span>View attendance and Circle statistics.</span></button>
         <button class="quick-link" onclick="showView('circles')"><strong>⚙️ Circle Management</strong><span>Registration, members, and communities.</span></button>
@@ -115,18 +126,17 @@
 
     <section id="homeView" class="view">
       <div class="card">
-        <h2>Join a Circle or Community</h2>
+        <h2>Find a Circle</h2>
         <div class="request-intro">
-          Looking for a Circle or Community to join? Tell us a little about yourself and what you are looking for. A Circle is a small group that meets closely together, while a Community is a larger gathering and can be a gentler first step if you are not yet ready for a Circle. Your responses will help us connect you with the right fit.
+          Looking for a Circle to join? Tell us a little about yourself and the kind of Circle you are looking for. Your responses will help us connect you with a Circle that fits your life, interests, and preferences.
         </div>
       </div>
 
       <div class="card">
-        <h2>Request to Join a Circle or Community</h2>
+        <h2>Request to Join a Circle</h2>
         <div id="requestStatus" class="request-status"></div>
         <div class="notice">Please answer the items that apply to you. You do not need to complete every optional field.</div>
         <div class="grid">
-          <div class="field full"><label>I would like to join *</label><select id="rJoinType" onchange="onJoinTypeChange()"><option value="Circle">A Circle</option><option value="Community">A Community</option><option value="Either">Not sure yet</option></select><div class="small muted" style="margin-top:6px">Not ready for a Circle yet? You are welcome to start with a Community.</div></div>
           <div class="field"><label>Name *</label><input id="rName" placeholder="Your full name"></div>
           <div class="field"><label>Email *</label><input id="rEmail" type="email" placeholder="Your email address"></div>
           <div class="field"><label>Phone / Mobile</label><input id="rPhone" type="tel" placeholder="Optional"></div>
@@ -147,7 +157,7 @@
           <div class="field full"><label>Additional Notes</label><textarea id="rNotes" placeholder="Anything else you would like us to know?"></textarea></div>
         </div>
         <div class="required-note">* Required fields</div>
-        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Submit Request</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
+        <div class="actions"><button id="submitRequestBtn" class="btn primary" onclick="submitCircleRequest()">Request to Join a Circle</button><button class="btn" onclick="clearCircleRequest()">Clear Form</button></div>
       </div>
     </section>
 
@@ -306,6 +316,15 @@
   </div>
 </div>
 
+<div id="trainingModal" class="modal">
+  <div class="modal-box">
+    <h3>Your Circle is registered! 🎉</h3>
+    <p style="line-height:1.6;color:#475569;margin:8px 0">Thank you for stepping up to lead. As a next step, please go through the Circle Leader training with the help of your <strong>Supervisor</strong>, using the training tool below.</p>
+    <p style="line-height:1.6;color:#475569;margin:8px 0;font-style:italic">&ldquo;Iron sharpens iron, and one man sharpens another.&rdquo; &mdash; Proverbs 27:17</p>
+    <div class="actions"><button class="btn" onclick="closeTrainingModal()">Later</button><a class="btn primary" style="text-decoration:none;display:inline-block" href="https://circle-group-leader-40cg.bolt.host/" target="_blank" rel="noopener" onclick="closeTrainingModal()">Open Training Tool</a></div>
+  </div>
+</div>
+
 <script>
   var state = {settings:{},circles:[],circleTypes:[],communityAffiliations:[],communities:[],frequencies:[],meetingModes:[],selectedCircleId:'',circleBeingEdited:null,communityBeingEdited:null,membersCircleId:'',members:[],attendance:[],circleCommunityFilter:'',memberCounts:{},newCircleMembers:[{name:'',email:''},{name:'',email:''}]};
   function $(id){return document.getElementById(id)}
@@ -392,125 +411,45 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
         "How does your hope in God change the way you work, serve, rest, and relate to people today?",
         "What is one ordinary thing you will do this week with the prayer, \"Lord, I trust You with tomorrow, so help me be fully present with You today\"?"
       ]
-    }
-    ,"2026-10-12":{
-      title:"The Story of Joseph - Day 1: God Sends Help Before You Know You Need It (Psalm 105:16-17)",
+    },
+    "2026-10-12":{
+      title:"The Story of God's Faithfulness - Day 1: God Is Already There (Genesis 45:7)",
       questions:[
-        "God sent Joseph ahead before anyone knew a famine was coming. Looking back, where can you see that God was already preparing help for a hard season you did not see coming?",
-        "When something painful happens, it is easy to wonder where God is. What helps you trust that He is at work even when you cannot see what He is doing?",
-        "Is there a season right now where you need a reminder that God has already sent help ahead? How can your Circle pray for you?"
+        "Joseph could only see God's hand ahead of him after many years. Where in your life does something feel like a detour or an unnecessary delay?",
+        "How might you face it differently if you believed God may already be doing something there that you cannot yet see?",
+        "What is one way you can trust God this week without needing to understand everything, and how can your Circle pray for you?"
       ]
     },
     "2026-10-13":{
-      title:"The Story of Joseph - Day 2: God Sent Me Ahead of You (Genesis 45:4-8)",
+      title:"The Story of God's Faithfulness - Day 2: The Waiting Is Not Wasted (Psalm 105:19)",
       questions:[
-        "Joseph told his brothers, \"it was not you who sent me here, but God.\" How does seeing God's hand help someone move toward forgiveness without pretending the hurt never happened?",
-        "Where do you find it hard to believe that God can work through something that someone else meant for harm?",
-        "Is there a person you need to speak a word of grace to this week? What would a first step look like?"
+        "Joseph waited through slavery, injustice, and prison, yet God was at work in him the whole time. What are you waiting for right now?",
+        "Instead of only asking “When will this end?”, what might God be forming in you while you wait?",
+        "What is one way you can stay faithful in this season of waiting, and how can your Circle encourage you?"
       ]
     },
     "2026-10-14":{
-      title:"The Story of Joseph - Day 3: Refined in the Waiting (Psalm 105:18-19)",
+      title:"The Story of God's Faithfulness - Day 3: Trust His Timing (Ecclesiastes 3:1)",
       questions:[
-        "Joseph waited at least thirteen years between his dream and its fulfillment. What do you tend to feel when God's timing is slower than yours?",
-        "The word \"proved\" carries the picture of gold refined in a furnace. What has a difficult season taught you that an easy season could not?",
-        "What is one way you can be faithful where you are right now instead of wishing you were somewhere else? How can your Circle encourage you?"
+        "We often want to control the timetable. Where are you feeling impatient with God's timing?",
+        "Joseph could not decide when his imprisonment would end, but he could remain faithful where God had placed him. What does faithfulness look like in your current season?",
+        "What would it look like to pray, “Lord, I trust Your timing more than my timetable,” about something specific this week?"
       ]
     },
     "2026-10-15":{
-      title:"The Story of Joseph - Day 4: Learning Before Leading (Psalm 105:20-22)",
+      title:"The Story of God's Faithfulness - Day 4: You May Not Understand It Yet (Isaiah 55:8)",
       questions:[
-        "Joseph was prepared in the pit, the prison, and the palace before he taught anyone wisdom. Why do you think God so often makes us learners before He makes us leaders?",
-        "Can you think of a time when you only understood God's way after looking back? What did hindsight show you?",
-        "Who has God placed around you that you could encourage or teach from what He has taught you? What small step could you take this week?"
+        "The pit, slavery, and prison did not make sense to Joseph at the time. What are you still asking God “Why?” about?",
+        "How can you hold on to what you know about God's character when you cannot understand His ways?",
+        "The next time you catch yourself asking “Why?”, what would trusting God look like in that moment?"
       ]
     },
     "2026-10-16":{
-      title:"The Story of Joseph - Day 5: Remembering Makes Us Worshipful (Psalm 105:1-6)",
+      title:"The Story of God's Faithfulness - Day 5: Remember and Worship (Psalm 105:5)",
       questions:[
-        "Psalm 105 retells Joseph's story so that God's people would worship. Which story of God's faithfulness in your own life do you most need to retell?",
-        "How does remembering what God has done change the way you pray or sing when circumstances are still hard?",
-        "Who could you tell about God's faithfulness this week, and how might your Circle cheer you on?"
-      ]
-    }
-    ,"2026-10-19":{
-      title:"The Story of Joseph - Day 1: When Jealousy Takes Root (Genesis 37:3-11)",
-      questions:[
-        "Jealousy often begins quietly, with a simple comparison. Where have you noticed comparison creeping into how you see others, even within the church?",
-        "Joseph's brothers saw his blessing as a threat. What helps you celebrate what God is doing in someone else's life?",
-        "Who could you pray for and encourage this week? How can your Circle help you practice celebrating others?"
-      ]
-    },
-    "2026-10-20":{
-      title:"The Story of Joseph - Day 2: Rejected by People, Not Abandoned by God (Acts 7:9-10)",
-      questions:[
-        "Stephen reminds us that Joseph's brothers sold him, but God was with him. When you have felt rejected, what truth about God's presence has helped you most?",
-        "Why is it so easy to treat other people's approval as proof of God's favor?",
-        "How can we stay humble enough to receive fair correction while still trusting that rejection does not mean God has left us?"
-      ]
-    },
-    "2026-10-21":{
-      title:"The Story of Joseph - Day 3: When the Person You Rejected Becomes Your Help (Genesis 42:1-8)",
-      questions:[
-        "The brothers stood before the one they had rejected, not knowing he was their help. When has God provided for you through someone you did not expect?",
-        "Joseph could have answered his brothers with revenge. What does it look like to extend grace while still keeping healthy boundaries?",
-        "Is there someone you have overlooked who may have something good to offer? What small step could you take this week?"
-      ]
-    },
-    "2026-10-22":{
-      title:"The Story of Joseph - Day 4: God's Purposes Are Bigger Than Our Story (Genesis 45:4-8)",
-      questions:[
-        "Joseph could see God's purpose without excusing what his brothers did. How can we hold both the reality of the hurt and trust in God's bigger plan?",
-        "We often measure our lives by comfort or success. What might change if you asked how God wants to use your story to serve others?",
-        "What is one gift, experience, or opportunity God has entrusted to you that could bless someone this week?"
-      ]
-    },
-    "2026-10-23":{
-      title:"The Story of Joseph - Day 5: Rejection Is Not the Final Word (Acts 7:51-60)",
-      questions:[
-        "Stephen faced rejection and yet saw Jesus at God's right hand. What does his example teach you about staying faithful when following Jesus is costly?",
-        "Stephen prayed for those who were hurting him. What makes it hard to release bitterness, and how does Jesus' mercy toward us help?",
-        "How does the resurrection of Jesus change the way you understand rejection or apparent defeat? How can your Circle pray for you?"
-      ]
-    }
-    ,"2026-10-26":{
-      title:"The Story of Joseph - Day 1: More Than Receiving Blessings (Isaiah 5:1-7)",
-      questions:[
-        "God prepared the vineyard and hoped for justice and righteousness, not just religious activity. What fruit do you think He most hopes to see in your life right now?",
-        "God blessed Abraham so that all the families of the earth would be blessed. How can the blessings you have received become a blessing to someone else?",
-        "It is easy to enjoy encouragement or forgiveness and forget to offer it to others. Where might God be inviting you to pass on what you have received?"
-      ]
-    },
-    "2026-10-27":{
-      title:"The Story of Joseph - Day 2: When We Forget Whose Vineyard It Is (Matthew 21:33-39)",
-      questions:[
-        "The tenants acted as though the vineyard belonged to them. What has God entrusted to you that you sometimes treat as your own?",
-        "How do you usually respond when God, or someone He uses, gently confronts you? What helps you receive correction with humility?",
-        "Jesus' story reminds us that leadership is stewardship, not ownership. What is one responsibility you could hold more openly before God this week?"
-      ]
-    },
-    "2026-10-28":{
-      title:"The Story of Joseph - Day 3: When God's Purposes Are Rejected (Genesis 50:15-21)",
-      questions:[
-        "Joseph named his brothers' actions as evil and still saw God at work. How can we be honest about wrongdoing without losing hope in God's faithfulness?",
-        "Recognizing God's sovereignty is not the same as excusing evil. Why do you think that distinction matters when we have been hurt?",
-        "It is easier to spot unfaithfulness in others than in ourselves. Where might your own fears or desires make you resist what God is asking of you?"
-      ]
-    },
-    "2026-10-29":{
-      title:"The Story of Joseph - Day 4: The Stone That Was Rejected (Matthew 21:40-44; 1 Peter 2:4-6)",
-      questions:[
-        "The stone the builders rejected became the cornerstone. When have you seen God value something or someone that people overlooked?",
-        "Whose approval tends to shape your decisions most? What would it look like to build more of your life around Jesus?",
-        "We can make quick judgments about people based on appearance or usefulness. Who might God want you to see with fresh eyes this week?"
-      ]
-    },
-    "2026-10-30":{
-      title:"The Story of Joseph - Day 5: One New Humanity (Ephesians 2:14-18; 1 Peter 2:4-6)",
-      questions:[
-        "Paul says Jesus has made peace and created one new humanity. What does that mean for how we treat people who are different from us?",
-        "How can we pursue truth and justice without letting it turn into contempt, and pursue peace without ignoring real harm?",
-        "What is one way you can help your Circle or church family become a place of welcome and reconciliation this week? How can the group pray for you?"
+        "Remembering God's faithfulness changes how we face today. What is one way God has been faithful to you that you want to remember?",
+        "How does remembering what God has done help you face a worry or uncertainty you have right now?",
+        "Share three ways God has been faithful to you, and take a moment to thank Him together as a Circle."
       ]
     }
   };
@@ -660,7 +599,7 @@ function renderCircleEditor(){var c=state.circleBeingEdited||{};$('circleEditPan
   function removeNewCircleMember(i){state.newCircleMembers.splice(i,1);renderNewCircleMembers()}
   function renderNewCircleMembers(){var p=$('newCircleMembersList');if(!p)return;p.innerHTML=state.newCircleMembers.map(function(m,i){return '<div class="email-member-row"><input value="'+esc(m.name)+'" oninput="state.newCircleMembers['+i+'].name=this.value" placeholder="Member name"><input class="email-field" type="email" value="'+esc(m.email||'')+'" oninput="state.newCircleMembers['+i+'].email=this.value" placeholder="Email (optional)"><button class="remove remove-email-member" onclick="removeNewCircleMember('+i+')">×</button></div>'}).join('')}
   async function editCircle(id){busy(true);try{state.circleBeingEdited=await server('apiGetCircle',id);state.selectedCircleId=id;circleMode('edit')}catch(e){toast(e.message)}finally{busy(false)}}
-  async function saveCircle(){var isNew=!(state.circleBeingEdited&&state.circleBeingEdited.id);var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,leaderEmail:$('cLeaderEmail')?$('cLeaderEmail').value:'',meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};if(isNew)c.members=state.newCircleMembers.filter(function(m){return m.name&&m.name.trim()});busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap();state.selectedCircleId=r.circleId;circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
+  async function saveCircle(){var isNew=!(state.circleBeingEdited&&state.circleBeingEdited.id);var c={id:state.circleBeingEdited&&state.circleBeingEdited.id||'',name:$('cName').value,type:$('cType').value,communityAffiliation:$('cCommunity').value,leaderName:$('cLeader').value,leaderEmail:$('cLeaderEmail')?$('cLeaderEmail').value:'',meetingTime:$('cMeetingTime').value,meetingPlace:$('cMeetingPlace').value,frequency:$('cFrequency').value,mannerOfMeeting:$('cMode').value,details:$('cDetails').value,active:true};if(isNew)c.members=state.newCircleMembers.filter(function(m){return m.name&&m.name.trim()});busy(true);try{var r=await server('apiSaveCircle',c);toast(r.message);await bootstrap();state.selectedCircleId=r.circleId;circleMode('list');if(isNew)showTrainingNotice()}catch(e){toast(e.message)}finally{busy(false)}}
   async function deactivateCircle(){if(!state.circleBeingEdited)return;if(!confirm('Deactivate this Circle? It will no longer appear in the normal Circle list.'))return;busy(true);try{var r=await server('apiDeactivateCircle',state.circleBeingEdited.id);toast(r.message);await bootstrap();circleMode('list')}catch(e){toast(e.message)}finally{busy(false)}}
   async function loadMembersEditor(id){
     var circles=state.circles||[];
@@ -727,6 +666,8 @@ function renderCircleEditor(){var c=state.circleBeingEdited||{};$('circleEditPan
 async function saveMembers(){busy(true);try{var r=await server('apiSaveMembers',state.membersCircleId,state.members);state.members=r.members||[];toast(r.message);renderMemberEditor();if($('emailComposer')&&$('emailComposer').style.display!=='none')renderEmailComposer()}catch(e){toast(e.message)}finally{busy(false)}}
   function openPersonModal(type){if(!state.selectedCircleId){toast('Choose a Circle first.');return}$('personModalTitle').textContent=type==='Guest'?'Add Guest':'Add New Member';$('personName').value='';$('personModal').dataset.type=type;$('personModal').classList.add('show');setTimeout(function(){$('personName').focus()},50)}
   function closePersonModal(){$('personModal').classList.remove('show')}
+  function showTrainingNotice(){$('trainingModal').classList.add('show')}
+  function closeTrainingModal(){$('trainingModal').classList.remove('show')}
   async function addPerson(){var name=$('personName').value.trim(),type=$('personModal').dataset.type||'Guest';if(!name){toast('Enter a name.');return}if(type==='Guest'){state.attendance.push({id:'G-'+Date.now(),name:name,type:'Guest',active:true,status:null});renderAttendance();closePersonModal();return}busy(true);try{var r=await server('apiAddMember',state.selectedCircleId,name);var added=(r.members||[]).filter(function(m){return m.name.toLowerCase()===name.toLowerCase()})[0];state.attendance.push({id:added?added.id:'M-'+Date.now(),name:name,type:'Member',active:true,status:null});toast('Member added.');renderAttendance();closePersonModal()}catch(e){toast(e.message)}finally{busy(false)}}
   async function onAttendanceCircleChange(){state.selectedCircleId=$('attendanceCircle').value;if(!state.selectedCircleId){state.attendance=[];renderAttendance();return}await loadEventOptions();await loadAttendance(false)}
   async function loadEventOptions(){if(!state.selectedCircleId)return;try{var options=await server('apiGetEventOptions',state.selectedCircleId);var items=[{value:'__NEW__',label:'＋ New Event'}].concat(options.map(function(x){return {value:x,label:x}}));fillSelect('eventSelect',items);$('eventSelect').value='__NEW__';$('newEventWrap').style.display='grid'}catch(e){toast(e.message)}}
@@ -785,13 +726,9 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     fillSelect('rManner',state.meetingModes.map(function(x){return {value:x,label:x}}),'No preference');
     fillSelect('rFrequency',state.frequencies.map(function(x){return {value:x,label:x}}),'No preference');
   }
-  function onJoinTypeChange(){
-    var community=$('rJoinType').value==='Community';
-    ['rCircle','rCircleType','rManner','rDay','rTime','rFrequency'].forEach(function(id){var f=$(id).parentNode;if(f)f.style.display=community?'none':''});
-  }
   function clearCircleRequest(hideStatus){
     ['rName','rEmail','rPhone','rLocation','rTime','rCommunity','rInterests','rWhy','rNotes'].forEach(function(id){$(id).value=''});
-    ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency','rJoinType'].forEach(function(id){$(id).selectedIndex=0});onJoinTypeChange();
+    ['rAge','rGender','rMarital','rLifeStage','rCircle','rCircleType','rManner','rDay','rFrequency'].forEach(function(id){$(id).selectedIndex=0});
     if(hideStatus!==false){$('requestStatus').classList.remove('show');$('requestStatus').textContent=''}
   }
   function showRequestSuccess(requestId){
@@ -801,9 +738,6 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
   }
   async function submitCircleRequest(){
     var request={name:$('rName').value,email:$('rEmail').value,phone:$('rPhone').value,ageRange:$('rAge').value,gender:$('rGender').value,maritalStatus:$('rMarital').value,lifeStage:$('rLifeStage').value,location:$('rLocation').value,preferredCircle:$('rCircle').value?$('rCircle').options[$('rCircle').selectedIndex].text:'',preferredCircleType:$('rCircleType').value,preferredManner:$('rManner').value,preferredMeetingDay:$('rDay').value,preferredMeetingTime:$('rTime').value,preferredFrequency:$('rFrequency').value,communityAffiliation:$('rCommunity').value,interests:$('rInterests').value,whyJoin:$('rWhy').value,additionalNotes:$('rNotes').value};
-    var jt=$('rJoinType').value;request.requestType=jt;
-    if(jt==='Community'){request.preferredCircle='';request.preferredCircleType='';request.preferredManner='';request.preferredMeetingDay='';request.preferredMeetingTime='';request.preferredFrequency=''}
-    request.additionalNotes='Looking to join: '+(jt==='Either'?'Circle or Community (not sure yet)':jt)+(request.additionalNotes?'\n\n'+request.additionalNotes:'');
     if(!request.name.trim()){toast('Please enter your name.');$('rName').focus();return}
     if(!request.email.trim()){toast('Please enter your email address.');$('rEmail').focus();return}
     $('submitRequestBtn').disabled=true;
@@ -909,7 +843,7 @@ async function loadStats(){busy(true);try{var d=await server('apiGetStats',$('st
     try{var x=await server('apiSubmitChatRequest',r);toast(x.message);closeChatRequest();await bootstrap();renderChatCircles()}catch(e){toast(e.message)}finally{$('submitChatRequestBtn').disabled=false}
   }
 
-async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}var firstLoad=!state.started;state.started=true;showView(firstLoad?'home':'today')}catch(e){toast(e.message||'The app could not load.')}}
+async function bootstrap(){try{var d=await server('apiGetBootstrap');if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');state.settings=d.settings||{};var chatStatuses=await server('apiGetChatRequestStatuses');state.circles=(d.circles||[]).map(function(c){c.chatRequestPending=!!chatStatuses[c.id];return c;});state.circleTypes=d.circleTypes||[];state.communityAffiliations=d.communityAffiliations||[];state.communities=d.communities||[];state.frequencies=d.frequencies||[];state.meetingModes=d.meetingModes||[];state.studyResources=d.studyResources||[];state.todayIso=d.todayIso;$('appTitle').textContent=state.settings.appTitle||'Circle Request, Registration, and Attendance';$('accountLabel').textContent=state.circles.length?(state.circles.length===1?'1 Circle registered':state.circles.length+' Circles registered'):'Welcome';state.selectedCircleId=state.selectedCircleId&&state.circles.some(function(c){return c.id===state.selectedCircleId})?state.selectedCircleId:((state.circles[0]||{}).id||'');state.membersCircleId=state.membersCircleId&&state.circles.some(function(c){return c.id===state.membersCircleId})?state.membersCircleId:state.selectedCircleId;fillSelect('attendanceCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'Choose a Circle');$('attendanceCircle').value=state.selectedCircleId;fillSelect('statsCircle',state.circles.map(function(c){return {value:c.id,label:c.name}}),'All Circles');$('statsCircle').value='';$('eventDate').value=state.todayIso;populateRequestForm();try{state.memberCounts=await server('apiGetCircleMemberCounts')}catch(e){state.memberCounts={}}showView('today')}catch(e){toast(e.message||'The app could not load.')}}
   bootstrap();
 </script>
 </body>

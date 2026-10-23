@@ -83,6 +83,8 @@
   <main>
 
     <section id="todayView" class="view">
+      <button type="button" class="btn primary" onclick="showView('home')" style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;margin-bottom:14px;padding:14px 16px;border-radius:16px;text-align:center;line-height:1.3"><strong style="font-size:17px">➕ Request to Join a Circle</strong><span style="font-size:13px;font-weight:600;opacity:.92">Looking for a Circle? Tap here and send us your information.</span></button>
+
       <div class="card today-hero">
         <div class="eyebrow">Your Circle Journey</div>
         <h1>Today</h1>
@@ -852,11 +854,11 @@ function applyBootstrap(d,chatStatuses,counts){state.settings=d.settings||{};sta
 async function bootstrap(opts){
   opts=opts||{};
   try{
-    var calls=[server('apiGetBootstrap'),server('apiGetChatRequestStatuses'),opts.light?Promise.resolve(null):server('apiGetCircleMemberCounts').catch(function(){return {}})];
-    var r=await Promise.all(calls);
-    var d=r[0];
+    var d=await server('apiGetBootstrap');
     if(!d||typeof d!=='object')throw new Error('The server returned no startup data. Please save the Apps Script project and redeploy the web app.');
-    var chat=r[1]||{},counts=r[2];
+    var chat=d.chatStatuses,counts=d.memberCounts;
+    if(!chat||!counts){var f=await Promise.all([chat?Promise.resolve(chat):server('apiGetChatRequestStatuses'),counts?Promise.resolve(counts):server('apiGetCircleMemberCounts').catch(function(){return {}})]);chat=f[0];counts=f[1]}
+    chat=chat||{};
     var prev=readBootCache();
     writeBootCache({d:d,chat:chat,counts:counts||(prev&&prev.counts)||state.memberCounts||{}});
     if(opts.background&&prev&&JSON.stringify([prev.d,prev.chat])===JSON.stringify([d,chat])){if(counts)state.memberCounts=counts;return}

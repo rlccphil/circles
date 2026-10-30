@@ -491,18 +491,18 @@ document.addEventListener('click',function(e){var wrap=document.querySelector('.
     var d=(state.todayIso||new Date().toISOString().slice(0,10)).split('-');
     var day=Math.floor(Date.UTC(Number(d[0]),Number(d[1])-1,Number(d[2]))/86400000),n=VERSES_OF_THE_DAY.length;
     var pref='';try{pref=localStorage.getItem('verseLabel')||''}catch(e){}
-    var v=VERSES_OF_THE_DAY[((day%n)+n)%n],key='verseOfDay3:'+day+':'+pref;
+    var v=VERSES_OF_THE_DAY[((day%n)+n)%n],key='verseOfDay4:'+day+':'+pref;
     $('verseRef').textContent='\u2014 '+v.r;
     try{var c=JSON.parse(localStorage.getItem(key)||'null');if(c&&c.t){showVerse(v,c);return}}catch(e){}
     $('verseText').textContent='Loading today\u2019s verse\u2026';
     server('apiGetVerseOfDay',v.r,pref)
-      .then(function(r){if(!r||!r.text)throw new Error('bible');return {t:r.text,l:r.translation||'Bible',c:r.copyright||'',f:r.fumsId||'',o:r.options||[]}})
+      .then(function(r){if(!r||!r.text)throw new Error('bible');return {t:r.text,l:r.translation||'Bible',c:r.copyright||'',f:r.fumsId||'',o:r.options||[],a:1}})
       .catch(function(){
         return fetch('https://bible-api.com/'+encodeURIComponent(v.r)+'?translation='+encodeURIComponent(VERSE_FALLBACK_TRANSLATION))
           .then(function(r){if(!r.ok)throw new Error('verse');return r.json()})
           .then(function(j){var t=String(j.text||'').replace(/\s+/g,' ').trim();if(!t)throw new Error('verse');return {t:t,l:String(j.translation_id||VERSE_FALLBACK_TRANSLATION).toUpperCase(),c:'',f:'',o:[]}})})
       .then(function(o){
-        try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&k.indexOf('verseOfDay')===0)localStorage.removeItem(k)}localStorage.setItem(key,JSON.stringify(o))}catch(e){}
+        if(o.a){try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&k.indexOf('verseOfDay')===0)localStorage.removeItem(k)}localStorage.setItem(key,JSON.stringify(o))}catch(e){}}
         showVerse(v,o)})
       .catch(function(){showVerse(v,{t:v.t,l:'KJV',c:'',f:'',o:[]})});
   }
